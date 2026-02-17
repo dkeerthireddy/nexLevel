@@ -1880,15 +1880,22 @@ export const Mutation = {
       // Send email notification to admin
       try {
         const { sendFeedbackNotificationToAdmins } = await import('../lib/email.js');
-        await sendFeedbackNotificationToAdmins({
+        const emailResult = await sendFeedbackNotificationToAdmins({
           name,
           email,
           subject,
           message,
           createdAt: feedback.createdAt
         });
+        
+        if (emailResult.success) {
+          console.log('✅ Feedback notification email sent successfully');
+        } else {
+          console.error('⚠️ Feedback notification email failed:', emailResult.error);
+        }
       } catch (emailError) {
-        console.error('⚠️ Failed to send feedback notification email:', emailError);
+        console.error('⚠️ Failed to send feedback notification email:', emailError.message);
+        console.error('⚠️ Stack:', emailError.stack);
         // Don't fail the mutation if email fails
       }
 
