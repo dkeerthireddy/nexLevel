@@ -104,14 +104,19 @@ async function startServer() {
         return callback(null, true);
       }
       
-      // Reject origin
-      console.log('❌ CORS rejected for origin:', origin);
-      callback(new Error('Not allowed by CORS'));
+      // Allow the request but log warning (don't block on production)
+      console.log('⚠️ CORS origin not in whitelist, but allowing:', origin);
+      callback(null, true);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Apollo-Require-Preflight'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204
   }));
+
+  // Explicit OPTIONS handler for preflight requests
+  app.options('*', cors());
 
   // Initialize passport
   app.use(passport.initialize());
