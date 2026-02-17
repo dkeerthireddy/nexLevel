@@ -592,15 +592,24 @@ export async function sendPasswordChangeEmail(recipientEmail, recipientName, ver
  */
 export async function sendFeedbackNotificationToAdmins(feedbackData) {
   try {
+    console.log('📧 Starting feedback notification process...');
+    
     const adminEmail = process.env.ADMIN_EMAIL;
     const adminPassword = process.env.ADMIN_EMAIL_PASSWORD;
 
+    console.log('📧 ADMIN_EMAIL exists:', !!adminEmail);
+    console.log('📧 ADMIN_EMAIL value:', adminEmail ? `${adminEmail.substring(0, 3)}***` : 'NOT SET');
+    console.log('📧 ADMIN_EMAIL_PASSWORD exists:', !!adminPassword);
+    console.log('📧 ADMIN_EMAIL_PASSWORD length:', adminPassword ? adminPassword.length : 0);
+
     if (!adminEmail || !adminPassword) {
-      console.log('⚠️ Admin email not configured - skipping feedback notification');
-      console.log('⚠️ Please set ADMIN_EMAIL and ADMIN_EMAIL_PASSWORD environment variables');
+      console.error('❌ Admin email not configured - skipping feedback notification');
+      console.error('❌ ADMIN_EMAIL:', adminEmail || 'NOT SET');
+      console.error('❌ ADMIN_EMAIL_PASSWORD:', adminPassword ? 'SET but empty' : 'NOT SET');
       return { success: false, error: 'Admin email not configured' };
     }
 
+    console.log('📧 Creating email transporter...');
     const transport = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -609,6 +618,17 @@ export async function sendFeedbackNotificationToAdmins(feedbackData) {
       }
     });
 
+    // Verify transporter configuration
+    console.log('📧 Verifying email transporter...');
+    try {
+      await transport.verify();
+      console.log('✅ Email transporter verified successfully');
+    } catch (verifyError) {
+      console.error('❌ Email transporter verification failed:', verifyError.message);
+      return { success: false, error: `Email configuration invalid: ${verifyError.message}` };
+    }
+
+    console.log('📧 Preparing email content...');
     const mailOptions = {
       from: `"${process.env.APP_NAME || 'nexLevel'}" <${adminEmail}>`,
       to: adminEmail,
@@ -660,11 +680,22 @@ export async function sendFeedbackNotificationToAdmins(feedbackData) {
       `
     };
 
-    await transport.sendMail(mailOptions);
-    console.log('✅ Feedback notification sent to admin:', adminEmail);
-    return { success: true };
+    console.log('📧 Sending email from:', mailOptions.from);
+    console.log('📧 Sending email to:', mailOptions.to);
+    console.log('📧 Email subject:', mailOptions.subject);
+
+    const info = await transport.sendMail(mailOptions);
+    console.log('✅ Feedback notification sent successfully!');
+    console.log('✅ Message ID:', info.messageId);
+    console.log('✅ Response:', info.response);
+    console.log('✅ Email sent to admin:', adminEmail);
+    
+    return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error('❌ Error sending feedback notification:', error);
+    console.error('❌ Error sending feedback notification:', error.message);
+    console.error('❌ Error code:', error.code);
+    console.error('❌ Error command:', error.command);
+    console.error('❌ Full error:', error);
     return { success: false, error: error.message };
   }
 }
