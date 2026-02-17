@@ -21,6 +21,7 @@ import {
   enableTwoFactorForUser,
   disableTwoFactorForUser
 } from '../../lib/two-factor.js';
+import { sendFeedbackNotificationToAdmins } from '../../lib/email.js';
 import { uploadToCloudinary } from '../../lib/cloudinary.js';
 import { 
   verifyPhotoWithAI,
