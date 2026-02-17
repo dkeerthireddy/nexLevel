@@ -1,0 +1,52 @@
+{
+  "version": 2,
+  "name": "streakmate-api",
+  "builds": [
+    {
+      "src": "api/graphql/index.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/graphql",
+      "dest": "api/graphql/index.js",
+      "methods": ["GET", "POST", "OPTIONS"]
+    },
+    {
+      "src": "/health",
+      "dest": "api/graphql/index.js",
+      "methods": ["GET"]
+    },
+    {
+      "src": "/auth/(.*)",
+      "dest": "api/routes/auth.js",
+      "methods": ["GET", "POST", "OPTIONS"]
+    },
+    {
+      "src": "/",
+      "dest": "api/graphql/index.js"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/daily-reminders",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/weekly-reports",
+      "schedule": "0 20 * * 0"
+    },
+    {
+      "path": "/api/cron/missed-checkins",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/cleanup-old-data",
+      "schedule": "0 2 * * *"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}

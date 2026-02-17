@@ -1,0 +1,556 @@
+# Type Definitions for StreakMate App
+
+# User Types
+type User {
+  id: ID!
+  email: String!
+  displayName: String!
+  profilePhoto: String
+  settings: UserSettings!
+  emailConfig: EmailConfig
+  emailVerified: Boolean!
+  twoFactorEnabled: Boolean!
+  role: String! # "user" or "admin"
+  friends: [User!]!
+  stats: UserStats!
+  activeChallenges: [UserChallenge!]!
+  createdAt: String!
+}
+
+type UserSettings {
+  notifications: NotificationSettings!
+  ai: AISettings!
+  theme: String! # "light" or "dark"
+}
+
+type NotificationSettings {
+  enabled: Boolean!
+  quietHours: QuietHours!
+  types: NotificationTypes!
+}
+
+type QuietHours {
+  start: String!
+  end: String!
+}
+
+type NotificationTypes {
+  partnerComplete: Boolean!
+  dailyReminder: Boolean!
+  streakMilestone: Boolean!
+}
+
+type AISettings {
+  coachEnabled: Boolean!
+  photoVerification: Boolean!
+  recommendations: Boolean!
+  weeklyReports: Boolean!
+}
+
+type UserStats {
+  totalChallenges: Int!
+  activeChallenges: Int!
+  completedChallenges: Int!
+  totalCheckIns: Int!
+  longestStreak: Int!
+}
+
+type EmailConfig {
+  gmailUser: String
+  enabled: Boolean!
+}
+
+type TwoFactorSetup {
+  secret: String!
+  qrCode: String!
+  backupCodes: [String!]!
+}
+
+# Task Types
+type Task {
+  id: ID!
+  title: String!
+  description: String
+  order: Int!
+}
+
+# Challenge Types
+type Challenge {
+  id: ID!
+  name: String!
+  description: String!
+  category: String!
+  frequency: String!
+  duration: Int!
+  requirePhotoProof: Boolean!
+  allowGraceSkips: Boolean!
+  graceSkipsPerWeek: Int!
+  createdBy: User
+  isTemplate: Boolean!
+  isPublic: Boolean!
+  stats: ChallengeStats!
+  
+  # Challenge type: solo or group
+  challengeType: String! # "solo" or "group"
+  
+  # Tasks (new feature)
+  tasks: [Task!]!
+  
+  # Collaboration (new feature)
+  collaborators: [User!]!
+  
+  createdAt: String!
+}
+
+type ChallengeStats {
+  totalUsers: Int!
+  activeUsers: Int!
+  completionRate: Float!
+  avgSuccessRate: Float!
+}
+
+# Task Progress Types
+type TaskProgress {
+  taskId: ID!
+  task: Task!
+  completed: Boolean!
+  completedAt: String
+  completedCount: Int!
+}
+
+# UserChallenge Types
+type UserChallenge {
+  id: ID!
+  user: User!
+  challenge: Challenge!
+  partners: [User!]!
+  currentStreak: Int!
+  longestStreak: Int!
+  totalCheckIns: Int!
+  missedDays: Int!
+  graceSkipsUsed: Int!
+  completionRate: Float!
+  status: String!
+  lastCheckIn: CheckIn
+  checkIns: [CheckIn!]!
+  
+  # Task Progress (new feature)
+  taskProgress: [TaskProgress!]!
+  
+  # Friends in this challenge (new feature)
+  friendsParticipating: [User!]!
+  
+  startDate: String!
+  endDate: String!
+  notificationTime: String!
+  reminderEnabled: Boolean!
+}
+
+# CheckIn Types
+type CheckIn {
+  id: ID!
+  date: String!
+  timestamp: String!
+  note: String
+  photoUrl: String
+  aiVerification: AIVerification
+  isEdited: Boolean!
+  taskId: ID  # Task this check-in is for (new field)
+  task: Task  # Resolved task object
+}
+
+type AIVerification {
+  verified: Boolean!
+  confidence: Float!
+  detectedActivity: String!
+  detectedObjects: [String!]!
+  model: String!
+}
+
+# AI Types
+type AIMessage {
+  id: ID!
+  type: String!
+  content: String!
+  challengeId: ID
+  read: Boolean!
+  liked: Boolean
+  createdAt: String!
+}
+
+type AIInsight {
+  patterns: BehavioralPatterns!
+  predictions: Predictions!
+  generatedAt: String!
+  confidence: Float!
+}
+
+type BehavioralPatterns {
+  bestCheckInTime: String!
+  bestDays: [String!]!
+  weakDays: [String!]!
+  successfulCategories: [String!]!
+  avgStreakLength: Float!
+  completionRate: Float!
+}
+
+type Predictions {
+  recommendations: [ChallengeRecommendation!]!
+  dropoutRisk: String!
+  riskFactors: [String!]!
+}
+
+type ChallengeRecommendation {
+  challenge: Challenge!
+  score: Int!
+  reason: String!
+}
+
+# Notification Types
+type Notification {
+  id: ID!
+  type: String!
+  title: String!
+  message: String!
+  challengeId: ID
+  partnerId: ID
+  read: Boolean!
+  createdAt: String!
+}
+
+type FeatureRequest {
+  id: ID!
+  userId: ID!
+  user: User!
+  title: String!
+  description: String!
+  category: String
+  status: String!
+  votes: Int!
+  votedBy: [ID!]!
+  adminNote: String
+  createdAt: String!
+  updatedAt: String!
+}
+
+type SystemStats {
+  totalUsers: Int!
+  totalChallenges: Int!
+  totalCheckIns: Int!
+  activeUsers: Int!
+  activeChallenges: Int!
+}
+
+type LeaderboardEntry {
+  user: User!
+  totalCheckIns: Int!
+  longestStreak: Int!
+  activeChallenges: Int!
+  completionRate: Float!
+  rank: Int!
+}
+
+type Certificate {
+  id: ID!
+  userId: ID!
+  type: String!
+  title: String!
+  description: String!
+  challengeId: ID
+  achievementDate: String!
+  imageUrl: String
+}
+
+type ChatMessage {
+  id: ID!
+  fromUserId: ID!
+  toUserId: ID!
+  message: String!
+  read: Boolean!
+  createdAt: String!
+}
+
+# Authentication
+type AuthPayload {
+  token: String!
+  user: User!
+}
+
+# Updates for Polling
+type Updates {
+  newCheckIns: [CheckIn!]!
+  newMessages: [AIMessage!]!
+  friendActivity: [FriendActivity!]!
+  timestamp: String!
+}
+
+type FriendActivity {
+  id: ID!
+  user: User!
+  action: String!
+  challenge: Challenge
+  message: String!
+  timestamp: String!
+}
+
+# Friend Request Types
+type FriendRequest {
+  id: ID!
+  from: User!
+  to: User!
+  status: String! # pending, accepted, rejected
+  createdAt: String!
+}
+
+# Queries
+type Query {
+  # Auth
+  me: User!
+  
+  # Users
+  user(id: ID!): User
+  searchUsers(query: String!): [User!]!
+  
+  # Challenges
+  challenge(id: ID!): Challenge
+  challenges(
+    category: String
+    isTemplate: Boolean
+    search: String
+    visibility: String
+    limit: Int
+    offset: Int
+  ): [Challenge!]!
+  
+  # Leaderboards
+  globalLeaderboard(limit: Int): [LeaderboardEntry!]!
+  challengeLeaderboard(challengeId: ID!, limit: Int): [LeaderboardEntry!]!
+  popularChallenges(limit: Int): [Challenge!]!
+  
+  # User Challenges
+  userChallenge(id: ID!): UserChallenge
+  myActiveChallenges: [UserChallenge!]!
+  myCompletedChallenges: [UserChallenge!]!
+  
+  # Check-ins
+  checkIn(id: ID!): CheckIn
+  checkInsForChallenge(
+    userChallengeId: ID!
+    startDate: String
+    endDate: String
+  ): [CheckIn!]!
+  
+  # AI
+  aiMessages(unreadOnly: Boolean, limit: Int): [AIMessage!]!
+  aiInsights: AIInsight
+  aiRecommendations: [ChallengeRecommendation!]!
+  
+  # Social
+  friends: [User!]!
+  friendRequests: [FriendRequest!]!
+  friendActivity(limit: Int): [FriendActivity!]!
+  friendsInChallenge(challengeId: ID!): [User!]!
+  
+  # Notifications
+  notifications(unreadOnly: Boolean, limit: Int): [Notification!]!
+  
+  # Feature Requests
+  featureRequests(status: String, limit: Int): [FeatureRequest!]!
+  
+  # Chat/Messaging
+  myMessages(limit: Int): [ChatMessage!]!
+  chatWith(userId: ID!, limit: Int): [ChatMessage!]!
+  
+  # Certificates
+  myCertificates: [Certificate!]!
+  
+  # Admin Only
+  allUsers(limit: Int, offset: Int): [User!]!
+  systemStats: SystemStats!
+  
+  # Polling endpoint for realtime updates
+  updates(since: String!): Updates!
+}
+
+# Mutations
+type Mutation {
+  # Auth
+  signup(
+    email: String!
+    password: String!
+    displayName: String!
+  ): AuthPayload!
+  
+  login(
+    email: String!
+    password: String!
+    twoFactorCode: String
+  ): AuthPayload!
+  
+  requestPasswordReset(email: String!): Boolean!
+  resetPassword(token: String!, newPassword: String!): Boolean!
+  verifyEmail(code: String!): Boolean!
+  resendVerificationEmail: Boolean!
+  
+  # Change Password (requires email verification)
+  requestPasswordChange(currentPassword: String!): Boolean!
+  changePassword(code: String!, newPassword: String!): Boolean!
+  
+  # Two-Factor Authentication
+  enableTwoFactor: TwoFactorSetup!
+  verifyTwoFactor(code: String!): Boolean!
+  disableTwoFactor(code: String!): Boolean!
+  
+  # Profile
+  updateProfile(
+    displayName: String
+    profilePhoto: String
+  ): User!
+  
+  updateSettings(settings: UserSettingsInput!): User!
+  
+  updateEmailConfig(
+    gmailUser: String
+    gmailAppPassword: String
+    enabled: Boolean
+  ): User!
+  
+  # Challenges
+  createChallenge(input: CreateChallengeInput!): Challenge!
+  updateChallenge(id: ID!, input: UpdateChallengeInput!): Challenge!
+  deleteChallenge(id: ID!): Boolean!
+  
+  # User Challenges
+  joinChallenge(
+    challengeId: ID!
+    partnerIds: [ID!]
+  ): UserChallenge!
+  
+  leaveChallenge(userChallengeId: ID!): Boolean!
+  
+  # Task Progress
+  updateTaskProgress(
+    userChallengeId: ID!
+    taskId: ID!
+    completed: Boolean!
+  ): TaskProgress!
+  
+  # Check-ins (now per task)
+  checkIn(
+    userChallengeId: ID!
+    taskId: ID!
+    note: String
+    photoBase64: String
+  ): CheckIn!
+  
+  updateCheckIn(
+    id: ID!
+    note: String
+  ): CheckIn!
+  
+  # AI
+  generateAICoachMessage(challengeId: ID): AIMessage!
+  generateWeeklyReport: AIMessage!
+  markAIMessageRead(id: ID!): AIMessage!
+  likeMessage(id: ID!, liked: Boolean!): AIMessage!
+  
+  # Social
+  sendFriendRequest(userId: ID!): FriendRequest!
+  acceptFriendRequest(requestId: ID!): Boolean!
+  rejectFriendRequest(requestId: ID!): Boolean!
+  removeFriend(userId: ID!): Boolean!
+  inviteFriendToChallenge(friendId: ID!, challengeId: ID!): Boolean!
+  inviteEmailToChallenge(email: String!, challengeId: ID!, message: String): Boolean!
+  shareProgressWithFriend(friendId: ID!, userChallengeId: ID!): Boolean!
+  
+  # Challenge Management
+  renameChallenge(challengeId: ID!, newName: String!): Challenge!
+  exitChallenge(userChallengeId: ID!, reason: String): Boolean!
+  
+  # Notifications
+  markNotificationRead(id: ID!): Notification!
+  markAllNotificationsRead: Boolean!
+  
+  # Feature Requests
+  submitFeatureRequest(title: String!, description: String!, category: String): FeatureRequest!
+  voteFeatureRequest(requestId: ID!): FeatureRequest!
+  
+  # Admin Only
+  updateFeatureRequestStatus(requestId: ID!, status: String!, adminNote: String): FeatureRequest!
+  
+  # Certificates
+  generateCertificate(userChallengeId: ID!): Certificate!
+  
+  # Chat/Messaging
+  sendMessage(toUserId: ID!, message: String!): ChatMessage!
+  markChatMessageRead(messageId: ID!): ChatMessage!
+  
+  # Push Notifications
+  subscribePushNotification(subscription: String!): Boolean!
+  
+  # Image Upload
+  uploadImage(base64: String!): String!
+}
+
+# Input Types
+input UserSettingsInput {
+  notifications: NotificationSettingsInput
+  ai: AISettingsInput
+  theme: String
+}
+
+input NotificationSettingsInput {
+  enabled: Boolean
+  quietHours: QuietHoursInput
+  types: NotificationTypesInput
+}
+
+input QuietHoursInput {
+  start: String
+  end: String
+}
+
+input NotificationTypesInput {
+  partnerComplete: Boolean
+  dailyReminder: Boolean
+  streakMilestone: Boolean
+}
+
+input AISettingsInput {
+  coachEnabled: Boolean
+  photoVerification: Boolean
+  recommendations: Boolean
+  weeklyReports: Boolean
+}
+
+input TaskInput {
+  title: String!
+  description: String
+  order: Int!
+}
+
+input CreateChallengeInput {
+  name: String!
+  description: String!
+  category: String!
+  frequency: String!
+  duration: Int!
+  requirePhotoProof: Boolean
+  allowGraceSkips: Boolean
+  graceSkipsPerWeek: Int
+  isPublic: Boolean
+  challengeType: String # "solo" or "group"
+  tasks: [TaskInput!]
+}
+
+input UpdateChallengeInput {
+  name: String
+  description: String
+  category: String
+  requirePhotoProof: Boolean
+  allowGraceSkips: Boolean
+  isPublic: Boolean
+  tasks: [TaskInput!]
+  addCollaborators: [ID!]
+  removeCollaborators: [ID!]
+}

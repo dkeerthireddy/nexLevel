@@ -1,0 +1,77 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+*.test.js
+*.test.mjs
+
+# Production
+build/
+dist/
+*.local
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+api/.env
+client/.env
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS
+Thumbs.db
+
+# Vercel
+.vercel
+
+# Temporary and test files
+tmp_*
+*_test_*
+test-*.js
+test-*.mjs
+check-db.*
+
+# Documentation files (internal dev notes)
+*COMPLETE*.md
+*COMPLETE*.txt
+*SUMMARY*.md
+*IMPLEMENTATION*.md
+*CHANGES*.md
+*FIX*.md
+*DELIVERY*.md
+*DELIVERY*.txt
+VALIDATION_REPORT.txt
+
+# Sensitive credentials
+SYSTEM_EMAIL_SETUP.txt
+*CREDENTIALS*.txt
+
+# Database backups
+*.dump
+*.backup
+
+# Private documentation (not for public GitHub)
+.private-docs/
+.private/

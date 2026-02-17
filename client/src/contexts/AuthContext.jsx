@@ -1,0 +1,123 @@
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { useMutation, useQuery } from '@apollo/client';
+import { LOGIN, SIGNUP, GET_ME } from '../lib/graphql';
+
+const AuthContext = createContext(null);
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+  return context;
+};
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [hasToken, setHasToken] = useState(!!localStorage.getItem('authToken'));
+
+  // Get current user - always call the hook, but skip based on state
+  const { data, refetch } = useQuery(GET_ME, {
+    skip: !hasToken,
+    fetchPolicy: 'network-only',
+    onCompleted: (data) => {
+      if (data?.me) {
+        setUser(data.me);
+        localStorage.setItem('user', JSON.stringify(data.me));
+      }
+      setLoading(false);
+    },
+    onError: (error) => {
+      console.log('GET_ME query failed:', error.message);
+      // Clear invalid authentication
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('user');
+      setUser(null);
+      setHasToken(false);
+      setLoading(false);
+    }
+  });
+
+  // Login mutation
+  const [loginMutation] = useMutation(LOGIN);
+
+  // Signup mutation
+  const [signupMutation] = useMutation(SIGNUP);
+
+  // Initialize from localStorage
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    const storedUser = localStorage.getItem('user');
+    
+    if (token && storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+        setHasToken(true);
+      } catch (e) {
+        console.error('Error parsing stored user:', e);
+        setHasToken(false);
+      }
+    } else {
+      setHasToken(false);
+    }
+    setLoading(false);
+  }, []);
+
+  const login = async (email, password) => {
+    try {
+      const result = await loginMutation({ variables: { email, password } });
+      const { token, user } = result.data.login;
+      localStorage.setItem('authToken', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      setUser(user);
+      setHasToken(true);
+      return { success: true, redirectTo: '/dashboard' };
+    } catch (error) {
+      // Extract the actual error message from GraphQL error
+      const message = error.graphQLErrors?.[0]?.message || error.message || 'Login failed';
+      throw new Error(message);
+    }
+  };
+
+  const signup = async (email, password, displayName) => {
+    try {
+      const result = await signupMutation({ variables: { email, password, displayName } });
+      const { token, user } = result.data.signup;
+      localStorage.setItem('authToken', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      setUser(user);
+      setHasToken(true);
+      return { success: true, redirectTo: '/verify-email-code' };
+    } catch (error) {
+      // Extract the actual error message from GraphQL error
+      const message = error.graphQLErrors?.[0]?.message || error.message || 'Signup failed';
+      throw new Error(message);
+    }
+  };
+
+  const logout = useCallback(() => {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    setUser(null);
+    setHasToken(false);
+    return { success: true, redirectTo: '/login' };
+  }, []);
+
+  const value = {
+    user,
+    loading,
+    login,
+    signup,
+    logout,
+    refetchUser: refetch
+  };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export default AuthContext;

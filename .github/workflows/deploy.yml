@@ -1,0 +1,19 @@
+# This workflow is for reference only
+# Vercel handles automatic deployments from GitHub
+# You don't need to enable GitHub Actions
+
+name: Vercel Deployment Info
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  info:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deployment Info
+        run: |
+          echo "ℹ️ Vercel handles automatic deployments"
+          echo "📦 Every push to main triggers a new deployment"
+          echo "🔗 Check deployment status at vercel.com/dashboard"

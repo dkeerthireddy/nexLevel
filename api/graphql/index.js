@@ -1,0 +1,157 @@
+import { ApolloServer } from '@apollo/server';
+import { expressMiddleware } from '@apollo/server/express4';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import express from 'express';
+import http from 'http';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+import { connectToDatabase, initializeIndexes } from '../lib/mongodb.js';
+import { createContext } from './context.js';
+import { resolvers } from './resolvers/index.js';
+import passport from 'passport';
+import { configureOAuth } from '../lib/oauth.js';
+import authRoutes from '../routes/auth.js';
+
+// Load environment variables
+dotenv.config();
+
+// Get __dirname equivalent in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Read GraphQL schema
+const typeDefs = readFileSync(join(__dirname, 'schema.graphql'), 'utf-8');
+
+// Configuration
+const PORT = process.env.PORT || 4000;
+const CORS_ORIGIN = process.env.CORS_ORIGIN || ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'];
+
+/**
+ * Initialize and start the GraphQL server
+ */
+async function startServer() {
+  // Create Express app
+  const app = express();
+  const httpServer = http.createServer(app);
+
+  // Connect to MongoDB and initialize indexes
+  let db;
+  try {
+    const connection = await connectToDatabase();
+    db = connection.db;
+    console.log('📊 Initializing database indexes...');
+    await initializeIndexes(db);
+    
+    // Initialize OAuth strategies with database (optional)
+    configureOAuth(db);
+  } catch (error) {
+    console.error('Failed to connect to MongoDB:', error);
+    process.exit(1);
+  }
+
+  // Create Apollo Server
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    introspection: true, // Enable GraphQL Playground
+    formatError: (error) => {
+      console.error('GraphQL Error:', error);
+      return {
+        message: error.message,
+        locations: error.locations,
+        path: error.path,
+      };
+    },
+  });
+
+  // Start Apollo Server
+  await server.start();
+  console.log('🚀 Apollo Server started');
+
+  // Apply CORS globally first - support multiple development ports
+  app.use(cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, Postman, or server-to-server)
+      if (!origin) return callback(null, true);
+      
+      // If CORS_ORIGIN is an array, check if origin is in the list
+      if (Array.isArray(CORS_ORIGIN)) {
+        if (CORS_ORIGIN.includes(origin)) {
+          return callback(null, true);
+        }
+      } else if (CORS_ORIGIN === origin) {
+        return callback(null, true);
+      }
+      
+      // Reject origin
+      callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+  }));
+
+  // Initialize passport
+  app.use(passport.initialize());
+
+  // Mount auth routes BEFORE GraphQL
+  app.use('/auth', authRoutes);
+
+  // Apply middleware
+  app.use(
+    '/graphql',
+    express.json({ limit: '10mb' }), // Increase limit for base64 images
+    expressMiddleware(server, {
+      context: createContext,
+    })
+  );
+
+  // Health check endpoint
+  app.get('/health', (req, res) => {
+    res.json({ 
+      status: 'ok', 
+      timestamp: new Date().toISOString(),
+      service: 'streakmate-api'
+    });
+  });
+
+  // Root endpoint
+  app.get('/', (req, res) => {
+    res.json({
+      message: 'StreakMate API',
+      graphql: '/graphql',
+      health: '/health',
+      version: '1.0.0'
+    });
+  });
+
+  // Start HTTP server
+  await new Promise((resolve) => httpServer.listen({ port: PORT }, resolve));
+  
+  console.log('');
+  console.log('🎉 =============================================');
+  console.log(`🚀 GraphQL API running at http://localhost:${PORT}/graphql`);
+  console.log(`🏥 Health check at http://localhost:${PORT}/health`);
+  console.log(`🎮 GraphQL Playground at http://localhost:${PORT}/graphql`);
+  console.log('🎉 =============================================');
+  console.log('');
+}
+
+// Handle errors
+process.on('unhandledRejection', (error) => {
+  console.error('Unhandled rejection:', error);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught exception:', error);
+  process.exit(1);
+});
+
+// Start the server
+startServer().catch((error) => {
+  console.error('Failed to start server:', error);
+  process.exit(1);
+});

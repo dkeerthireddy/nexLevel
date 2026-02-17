@@ -1,0 +1,22 @@
+{
+  "name": "streakmate",
+  "version": "1.0.0",
+  "description": "StreakMate - AI-Powered Challenge Tracking App with MongoDB + GraphQL",
+  "private": true,
+  "workspaces": [
+    "client",
+    "api"
+  ],
+  "scripts": {
+    "install:all": "npm install && cd client && npm install && cd ../api && npm install",
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:api\"",
+    "dev:client": "cd client && npm run dev",
+    "dev:api": "cd api && npm run dev",
+    "build": "npm run build:client && npm run build:api",
+    "build:client": "cd client && npm run build",
+    "build:api": "cd api && npm run build"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
