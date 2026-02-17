@@ -1935,7 +1935,37 @@ export const Mutation = {
       throw new Error('Feedback not found');
     }
 
-    return result.value;
+    return {
+      ...result.value,
+      id: result.value._id.toString()
+    };
+  },
+
+  addFeedbackNote: async (_, { feedbackId, note }, { db, user }) => {
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+
+    // Check if user is admin using role field
+    const adminUser = await db.collection('users').findOne({ _id: user._id });
+    if (adminUser?.role !== 'admin' && !adminUser?.isAdmin) {
+      throw new Error('Admin access required');
+    }
+
+    const result = await db.collection('feedback').findOneAndUpdate(
+      { _id: new ObjectId(feedbackId) },
+      { $set: { adminNotes: note, updatedAt: new Date() } },
+      { returnDocument: 'after' }
+    );
+
+    if (!result.value) {
+      throw new Error('Feedback not found');
+    }
+
+    return {
+      ...result.value,
+      id: result.value._id.toString()
+    };
   },
 
   // ============================================================

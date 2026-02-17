@@ -245,7 +245,9 @@ type Feedback {
   subject: String!
   message: String!
   status: String!
+  adminNotes: String
   createdAt: String!
+  updatedAt: String
 }
 
 type SystemStats {
@@ -497,6 +499,7 @@ type Mutation {
   # Admin Only
   updateFeatureRequestStatus(requestId: ID!, status: String!, adminNote: String): FeatureRequest!
   updateFeedbackStatus(feedbackId: ID!, status: String!): Feedback!
+  addFeedbackNote(feedbackId: ID!, note: String!): Feedback!
   
   # Certificates
   generateCertificate(userChallengeId: ID!): Certificate!

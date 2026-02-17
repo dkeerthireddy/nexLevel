@@ -544,7 +544,9 @@ export const GET_ALL_FEEDBACK = gql`
       subject
       message
       status
+      adminNotes
       createdAt
+      updatedAt
     }
   }
 `;
@@ -554,6 +556,29 @@ export const UPDATE_FEEDBACK_STATUS = gql`
     updateFeedbackStatus(feedbackId: $feedbackId, status: $status) {
       id
       status
+      updatedAt
+    }
+  }
+`;
+
+export const ADD_FEEDBACK_NOTE = gql`
+  mutation AddFeedbackNote($feedbackId: ID!, $note: String!) {
+    addFeedbackNote(feedbackId: $feedbackId, note: $note) {
+      id
+      adminNotes
+      updatedAt
+    }
+  }
+`;
+
+export const GET_SYSTEM_STATS = gql`
+  query GetSystemStats {
+    systemStats {
+      totalUsers
+      totalChallenges
+      totalCheckIns
+      activeUsers
+      activeChallenges
     }
   }
 `;
