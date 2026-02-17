@@ -1884,7 +1884,7 @@ export const Mutation = {
         console.log('📧 [FEEDBACK] Environment check - ADMIN_EMAIL:', process.env.ADMIN_EMAIL ? 'SET' : 'NOT SET');
         console.log('📧 [FEEDBACK] Environment check - ADMIN_EMAIL_PASSWORD:', process.env.ADMIN_EMAIL_PASSWORD ? 'SET (length: ' + process.env.ADMIN_EMAIL_PASSWORD.length + ')' : 'NOT SET');
         
-        const emailResult = await sendFeedbackNotificationToAdmins({
+        await sendFeedbackNotificationToAdmins({
           name,
           email,
           subject,
@@ -1892,16 +1892,11 @@ export const Mutation = {
           createdAt: feedback.createdAt
         });
         
-        if (emailResult.success) {
-          console.log('✅ [FEEDBACK] Email notification sent successfully!');
-        } else {
-          console.error('❌ [FEEDBACK] Email notification failed:', emailResult.error);
-        }
+        console.log('✅ [FEEDBACK] Email notification sent successfully!');
       } catch (emailError) {
-        console.error('❌ [FEEDBACK] Exception sending email:', emailError.message);
-        console.error('❌ [FEEDBACK] Error name:', emailError.name);
-        console.error('❌ [FEEDBACK] Stack trace:', emailError.stack);
-        // Don't fail the mutation if email fails
+        console.error('❌ [FEEDBACK] Failed to send email notification:', emailError.message);
+        console.error('❌ [FEEDBACK] Error stack:', emailError.stack);
+        // Don't fail the mutation if email fails - feedback is still saved
       }
 
       console.log('✅ Feedback received from:', email, '- Subject:', subject);
