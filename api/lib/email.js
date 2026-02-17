@@ -640,7 +640,7 @@ export async function sendFeedbackNotificationToAdmins(feedbackData, db) {
     console.log('📧 Preparing email content...');
     const mailOptions = {
       from: `"${process.env.APP_NAME || 'nexLevel'}" <${systemEmail}>`,
-      to: adminEmails.join(', '), // Send to all admin users from database
+      to: systemEmail, // Send to system admin email
       subject: `📬 New Feedback Submission: ${feedbackData.subject}`,
       html: `
         <!DOCTYPE html>
@@ -694,7 +694,7 @@ export async function sendFeedbackNotificationToAdmins(feedbackData, db) {
     console.log('📧 Email subject:', mailOptions.subject);
 
     await transport.sendMail(mailOptions);
-    console.log('✅ Feedback notification sent to:', adminEmails.join(', '));
+    console.log('✅ Feedback notification sent to:', systemEmail);
   } catch (error) {
     console.error('❌ Error sending feedback notification:', error);
     throw new Error('Failed to send feedback notification email');
