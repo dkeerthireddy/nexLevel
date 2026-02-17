@@ -453,7 +453,11 @@ export const Query = {
       .limit(limit)
       .toArray();
 
-    return feedback;
+    // Map _id to id for GraphQL
+    return feedback.map(item => ({
+      ...item,
+      id: item._id.toString()
+    }));
   },
 
   systemStats: async (_, { limit, offset }, { db, user }) => {
