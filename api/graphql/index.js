@@ -84,8 +84,16 @@ async function startServer() {
     // Initialize OAuth strategies with database (optional)
     configureOAuth(db);
   } catch (error) {
-    console.error('Failed to connect to MongoDB:', error);
-    process.exit(1);
+    console.error('❌ Failed to connect to MongoDB:', error);
+    console.error('❌ Error details:', error.message);
+    console.error('❌ Stack:', error.stack);
+    
+    // Don't exit on Vercel - return error response instead
+    if (process.env.VERCEL) {
+      console.log('⚠️ Running on Vercel - will return error responses instead of exiting');
+    } else {
+      process.exit(1);
+    }
   }
 
   // Create Apollo Server
@@ -107,40 +115,6 @@ async function startServer() {
   // Start Apollo Server
   await server.start();
   console.log('🚀 Apollo Server started');
-
-  // Apply CORS globally first - support multiple development ports
-  app.use(cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, Postman, or server-to-server)
-      if (!origin) return callback(null, true);
-      
-      console.log('🔍 CORS check for origin:', origin);
-      console.log('🔍 Allowed origins:', CORS_ORIGIN);
-      
-      // If CORS_ORIGIN is an array, check if origin is in the list
-      if (Array.isArray(CORS_ORIGIN)) {
-        if (CORS_ORIGIN.includes(origin)) {
-          console.log('✅ CORS allowed for origin:', origin);
-          return callback(null, true);
-        }
-      } else if (CORS_ORIGIN === origin) {
-        console.log('✅ CORS allowed for origin:', origin);
-        return callback(null, true);
-      }
-      
-      // Allow the request but log warning (don't block on production)
-      console.log('⚠️ CORS origin not in whitelist, but allowing:', origin);
-      callback(null, true);
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Apollo-Require-Preflight'],
-    preflightContinue: false,
-    optionsSuccessStatus: 204
-  }));
-
-  // Explicit OPTIONS handler for preflight requests
-  app.options('*', cors());
 
   // Initialize passport
   app.use(passport.initialize());
