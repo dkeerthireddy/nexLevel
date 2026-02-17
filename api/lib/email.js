@@ -592,11 +592,12 @@ export async function sendPasswordChangeEmail(recipientEmail, recipientName, ver
  */
 export async function sendFeedbackNotificationToAdmins(feedbackData) {
   try {
-    const adminEmail = process.env.ADMIN_EMAIL || process.env.GMAIL_USER;
-    const adminPassword = process.env.ADMIN_PASSWORD || process.env.GMAIL_APP_PASSWORD;
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_EMAIL_PASSWORD;
 
     if (!adminEmail || !adminPassword) {
       console.log('⚠️ Admin email not configured - skipping feedback notification');
+      console.log('⚠️ Please set ADMIN_EMAIL and ADMIN_EMAIL_PASSWORD environment variables');
       return { success: false, error: 'Admin email not configured' };
     }
 
