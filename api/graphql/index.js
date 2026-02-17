@@ -42,12 +42,36 @@ if (process.env.CORS_ORIGIN) {
 }
 
 /**
+ * CORS middleware for Vercel serverless functions
+ */
+function setCorsHeaders(req, res) {
+  const origin = req.headers.origin || '*';
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', origin);
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Apollo-Require-Preflight');
+}
+
+/**
  * Initialize and start the GraphQL server
  */
 async function startServer() {
   // Create Express app
   const app = express();
   const httpServer = http.createServer(app);
+
+  // Handle CORS for all requests at the very beginning
+  app.use((req, res, next) => {
+    setCorsHeaders(req, res);
+    
+    // Handle preflight OPTIONS request
+    if (req.method === 'OPTIONS') {
+      res.status(204).end();
+      return;
+    }
+    
+    next();
+  });
 
   // Connect to MongoDB and initialize indexes
   let db;
