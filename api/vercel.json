@@ -1,0 +1,34 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "graphql/index.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "routes/auth.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/graphql",
+      "dest": "/graphql/index.js",
+      "methods": ["GET", "POST", "OPTIONS"]
+    },
+    {
+      "src": "/health",
+      "dest": "/graphql/index.js",
+      "methods": ["GET"]
+    },
+    {
+      "src": "/auth/(.*)",
+      "dest": "/routes/auth.js",
+      "methods": ["GET", "POST", "OPTIONS"]
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/graphql/index.js"
+    }
+  ]
+}
