@@ -88,9 +88,10 @@ async function startServer() {
     console.error('❌ Error details:', error.message);
     console.error('❌ Stack:', error.stack);
     
-    // Don't exit on Vercel - return error response instead
+    // On Vercel, throw error to let the function fail gracefully
     if (process.env.VERCEL) {
-      console.log('⚠️ Running on Vercel - will return error responses instead of exiting');
+      console.log('⚠️ Running on Vercel - throwing error to fail gracefully');
+      throw new Error(`Database connection failed: ${error.message}`);
     } else {
       process.exit(1);
     }
@@ -183,11 +184,17 @@ process.on('unhandledRejection', (error) => {
 
 process.on('uncaughtException', (error) => {
   console.error('Uncaught exception:', error);
-  process.exit(1);
+  // Don't exit on Vercel
+  if (!process.env.VERCEL) {
+    process.exit(1);
+  }
 });
 
 // Start the server
 startServer().catch((error) => {
   console.error('Failed to start server:', error);
-  process.exit(1);
+  // Don't exit on Vercel - let the function fail gracefully
+  if (!process.env.VERCEL) {
+    process.exit(1);
+  }
 });
