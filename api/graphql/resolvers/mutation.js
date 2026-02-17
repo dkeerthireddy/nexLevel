@@ -1879,7 +1879,10 @@ export const Mutation = {
 
       // Send email notification to admin
       try {
-        const { sendFeedbackNotificationToAdmins } = await import('../lib/email.js');
+        console.log('📧 [FEEDBACK] Starting email notification process...');
+        console.log('📧 [FEEDBACK] Environment check - ADMIN_EMAIL:', process.env.ADMIN_EMAIL ? 'SET' : 'NOT SET');
+        console.log('📧 [FEEDBACK] Environment check - ADMIN_EMAIL_PASSWORD:', process.env.ADMIN_EMAIL_PASSWORD ? 'SET (length: ' + process.env.ADMIN_EMAIL_PASSWORD.length + ')' : 'NOT SET');
+        
         const emailResult = await sendFeedbackNotificationToAdmins({
           name,
           email,
@@ -1889,13 +1892,14 @@ export const Mutation = {
         });
         
         if (emailResult.success) {
-          console.log('✅ Feedback notification email sent successfully');
+          console.log('✅ [FEEDBACK] Email notification sent successfully!');
         } else {
-          console.error('⚠️ Feedback notification email failed:', emailResult.error);
+          console.error('❌ [FEEDBACK] Email notification failed:', emailResult.error);
         }
       } catch (emailError) {
-        console.error('⚠️ Failed to send feedback notification email:', emailError.message);
-        console.error('⚠️ Stack:', emailError.stack);
+        console.error('❌ [FEEDBACK] Exception sending email:', emailError.message);
+        console.error('❌ [FEEDBACK] Error name:', emailError.name);
+        console.error('❌ [FEEDBACK] Stack trace:', emailError.stack);
         // Don't fail the mutation if email fails
       }
 
