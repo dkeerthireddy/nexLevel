@@ -114,14 +114,14 @@ async function startServer() {
     res.json({ 
       status: 'ok', 
       timestamp: new Date().toISOString(),
-      service: 'streakmate-api'
+      service: 'nexlevel-api'
     });
   });
 
   // Root endpoint
   app.get('/', (req, res) => {
     res.json({
-      message: 'StreakMate API',
+      message: 'nexLevel API',
       graphql: '/graphql',
       health: '/health',
       version: '1.0.0'

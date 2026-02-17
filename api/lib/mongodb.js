@@ -12,7 +12,7 @@ if (!dbName && uri) {
   if (match && match[1]) {
     dbName = match[1];
   } else {
-    dbName = 'streakmate_db'; // fallback
+    dbName = 'nexlevel_db'; // fallback
   }
 }
 

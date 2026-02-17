@@ -1,4 +1,4 @@
-# Type Definitions for StreakMate App
+# Type Definitions for nexLevel App
 
 # User Types
 type User {
@@ -233,6 +233,21 @@ type FeatureRequest {
   updatedAt: String!
 }
 
+type FeedbackResponse {
+  success: Boolean!
+  message: String!
+}
+
+type Feedback {
+  id: ID!
+  name: String!
+  email: String!
+  subject: String!
+  message: String!
+  status: String!
+  createdAt: String!
+}
+
 type SystemStats {
   totalUsers: Int!
   totalChallenges: Int!
@@ -367,6 +382,7 @@ type Query {
   # Admin Only
   allUsers(limit: Int, offset: Int): [User!]!
   systemStats: SystemStats!
+  allFeedback(status: String, limit: Int, offset: Int): [Feedback!]!
   
   # Polling endpoint for realtime updates
   updates(since: String!): Updates!
@@ -477,6 +493,7 @@ type Mutation {
   
   # Admin Only
   updateFeatureRequestStatus(requestId: ID!, status: String!, adminNote: String): FeatureRequest!
+  updateFeedbackStatus(feedbackId: ID!, status: String!): Feedback!
   
   # Certificates
   generateCertificate(userChallengeId: ID!): Certificate!
@@ -490,6 +507,9 @@ type Mutation {
   
   # Image Upload
   uploadImage(base64: String!): String!
+  
+  # Feedback
+  sendFeedback(name: String!, email: String!, subject: String!, message: String!): FeedbackResponse!
 }
 
 # Input Types

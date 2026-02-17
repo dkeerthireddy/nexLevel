@@ -3,7 +3,7 @@ import { generateMotivationalMessage, generateChallengeRecommendations } from '.
 import { sendNotificationEmail } from './email.js';
 
 /**
- * Notification System for StreakMate App
+ * Notification System for nexLevel App
  */
 
 /**

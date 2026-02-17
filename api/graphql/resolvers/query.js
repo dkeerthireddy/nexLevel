@@ -420,9 +420,9 @@ export const Query = {
       throw new Error('Not authenticated');
     }
 
-    // Check if user is admin
+    // Check if user is admin using role field
     const adminUser = await db.collection('users').findOne({ _id: user._id });
-    if (!adminUser?.isAdmin) {
+    if (adminUser?.role !== 'admin' && !adminUser?.isAdmin) {
       throw new Error('Admin access required');
     }
 
@@ -434,14 +434,36 @@ export const Query = {
       .toArray();
   },
 
+  allFeedback: async (_, { status, limit = 50, offset = 0 }, { db, user }) => {
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+
+    // Check if user is admin using role field
+    const adminUser = await db.collection('users').findOne({ _id: user._id });
+    if (adminUser?.role !== 'admin' && !adminUser?.isAdmin) {
+      throw new Error('Admin access required');
+    }
+
+    const filter = status ? { status } : {};
+    const feedback = await db.collection('feedback')
+      .find(filter)
+      .sort({ createdAt: -1 })
+      .skip(offset)
+      .limit(limit)
+      .toArray();
+
+    return feedback;
+  },
+
   systemStats: async (_, { limit, offset }, { db, user }) => {
     if (!user) {
       throw new Error('Not authenticated');
     }
 
-    // Check if user is admin
+    // Check if user is admin using role field
     const adminUser = await db.collection('users').findOne({ _id: user._id });
-    if (!adminUser?.isAdmin) {
+    if (adminUser?.role !== 'admin' && !adminUser?.isAdmin) {
       throw new Error('Admin access required');
     }
 

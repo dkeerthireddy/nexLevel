@@ -26,10 +26,10 @@ if (!isConfigured) {
 /**
  * Upload image to Cloudinary
  * @param {string} base64Image - Base64 encoded image (with or without data URI prefix)
- * @param {string} folder - Folder name in Cloudinary (default: 'streakmate')
+ * @param {string} folder - Folder name in Cloudinary (default: 'nexlevel')
  * @returns {Promise<object>} - { url, publicId }
  */
-export async function uploadToCloudinary(base64Image, folder = 'streakmate') {
+export async function uploadToCloudinary(base64Image, folder = 'nexlevel') {
   if (!isConfigured) {
     throw new Error('Cloudinary API is not configured. Please set CLOUDINARY credentials.');
   }

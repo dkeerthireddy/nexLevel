@@ -1,7 +1,7 @@
 {
-  "name": "streakmate",
+  "name": "nexlevel",
   "version": "1.0.0",
-  "description": "StreakMate - AI-Powered Challenge Tracking App with MongoDB + GraphQL",
+  "description": "nexLevel - AI-Powered Challenge Tracking App with MongoDB + GraphQL",
   "private": true,
   "workspaces": [
     "client",

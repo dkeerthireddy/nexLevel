@@ -1,7 +1,7 @@
 import React from 'react';
 
 /**
- * Loading Skeleton Components for StreakMate
+ * Loading Skeleton Components for nexLevel
  * Beautiful loading states that match the app's design
  */
 

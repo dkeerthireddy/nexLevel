@@ -11,7 +11,7 @@ const LogoPreview = () => {
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            StreakMate Logo Options
+            nexLevel Logo Options
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
             Choose your favorite logo design for the app
@@ -40,7 +40,7 @@ const LogoPreview = () => {
               <div className="flex items-center gap-3">
                 <LogoFlame className="w-12 h-12" />
                 <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  StreakMate
+                  nexLevel
                 </span>
               </div>
 
@@ -80,7 +80,7 @@ const LogoPreview = () => {
               <div className="flex items-center gap-3">
                 <LogoCircular className="w-12 h-12" />
                 <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  StreakMate
+                  nexLevel
                 </span>
               </div>
 
@@ -120,7 +120,7 @@ const LogoPreview = () => {
               <div className="flex items-center gap-3">
                 <LogoDuo className="w-12 h-12" />
                 <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  StreakMate
+                  nexLevel
                 </span>
               </div>
 
@@ -134,7 +134,7 @@ const LogoPreview = () => {
 
             <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                <strong>Concept:</strong> Emphasizes the "mate" in StreakMate - showing partnership and support together.
+                <strong>Concept:</strong> Emphasizes reaching the next level - showing growth and achievement together.
               </p>
             </div>
           </div>

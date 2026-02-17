@@ -39,7 +39,7 @@ const AuthCallback = () => {
   }, [searchParams, navigate, refetchUser]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-500 via-blue-500 to-teal-500 flex items-center justify-center">
       <div className="bg-white rounded-2xl shadow-2xl p-12 text-center">
         <Loader2 className="w-16 h-16 animate-spin text-cyan-600 mx-auto mb-4" />
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Signing you in...</h2>

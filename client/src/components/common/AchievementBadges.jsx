@@ -2,7 +2,7 @@ import React from 'react';
 import { Flame, Target, Calendar, Trophy, Zap, Star, Crown, Award, TrendingUp } from 'lucide-react';
 
 /**
- * Achievement Badge System for StreakMate
+ * Achievement Badge System for nexLevel
  * Beautiful, gamified badges to celebrate user milestones
  */
 

@@ -42,7 +42,7 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // StreakMate Professional Color Palette
+        // nexLevel Professional Color Palette
         // Designed for accountability, productivity, and calmness
         brand: {
           // Primary: Deep Blue (Trust, Reliability, Professionalism)

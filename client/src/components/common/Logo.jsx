@@ -1,7 +1,7 @@
 import React from 'react';
 
 /**
- * StreakMate Logo Component - Professional Blue/Teal Palette
+ * nexLevel Logo Component - Professional Blue/Teal Palette
  * Three variants: flame, minimal, gradient
  */
 const Logo = ({ variant = 'flame', size = 'md', showText = true, className = '' }) => {
@@ -59,7 +59,7 @@ const Logo = ({ variant = 'flame', size = 'md', showText = true, className = '' 
             </linearGradient>
           </defs>
           <circle cx="50" cy="50" r="40" fill="url(#minimalGradient)" className="drop-shadow-xl"/>
-          <text x="50" y="65" fontSize="48" fill="#FFF" fontWeight="900" fontFamily="sans-serif" textAnchor="middle">SM</text>
+          <text x="50" y="65" fontSize="48" fill="#FFF" fontWeight="900" fontFamily="sans-serif" textAnchor="middle">nL</text>
         </svg>
       )}
 
@@ -92,7 +92,7 @@ const Logo = ({ variant = 'flame', size = 'md', showText = true, className = '' 
       {/* Logo Text */}
       {showText && (
         <span className={`font-bold text-gray-900 dark:text-white ${textSize}`}>
-          StreakMate
+          nexLevel
         </span>
       )}
     </div>

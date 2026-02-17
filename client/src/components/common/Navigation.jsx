@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Target, Compass, TrendingUp, User, LogOut, Plus, Bot, Bell, Moon, Sun, Menu, X, Settings, ChevronDown } from 'lucide-react';
+import { Home, Target, Compass, TrendingUp, User, LogOut, Plus, Bot, Bell, Moon, Sun, Menu, X, Settings, ChevronDown, Shield } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useQuery } from '@apollo/client';
@@ -46,6 +46,8 @@ const Navigation = () => {
   });
 
   const unreadCount = notificationsData?.notifications?.length || 0;
+
+  const isAdmin = user?.role === 'admin' || user?.isAdmin;
 
   const navItems = [
     { path: '/dashboard', label: 'Dashboard', icon: Home },
@@ -166,6 +168,20 @@ const Navigation = () => {
                       <Settings className="w-4 h-4" />
                       <span className="text-sm font-medium">Settings</span>
                     </Link>
+                    {isAdmin && (
+                      <>
+                        <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                        <Link
+                          to="/admin"
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="flex items-center space-x-3 px-4 py-2.5 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 transition-colors"
+                        >
+                          <Shield className="w-4 h-4" />
+                          <span className="text-sm font-medium">Admin Dashboard</span>
+                        </Link>
+                        <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                      </>
+                    )}
                     <button
                       onClick={() => {
                         setUserDropdownOpen(false);

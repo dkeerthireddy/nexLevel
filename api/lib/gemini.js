@@ -304,7 +304,7 @@ export async function generateMotivationalMessage(userData) {
   }
   
   const prompt = `
-    You are a supportive streak coach for StreakMate. Generate a brief, encouraging message for this user.
+    You are a supportive streak coach for nexLevel. Generate a brief, encouraging message for this user.
     
     User's active challenges: ${userData.activeChallenges || 0}
     Check-ins this week: ${userData.checkInsThisWeek || 0}

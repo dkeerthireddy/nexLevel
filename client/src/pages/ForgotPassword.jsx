@@ -30,7 +30,7 @@ const ForgotPassword = () => {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8">
           <div className="text-center">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -45,7 +45,7 @@ const ForgotPassword = () => {
             </p>
             <Link 
               to="/login"
-              className="inline-flex items-center text-cyan-600 hover:text-indigo-700 font-semibold"
+              className="inline-flex items-center text-cyan-600 hover:text-teal-700 font-semibold"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Login
@@ -57,13 +57,13 @@ const ForgotPassword = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-gradient-to-r from-cyan-100 to-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Mail className="w-8 h-8 text-cyan-600" />
           </div>
-          <h2 className="text-3xl font-bold text-gray-800">Forgot Password?</h2>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent">Forgot Password?</h2>
           <p className="text-gray-600 mt-2">
             No worries! Enter your email and we'll send you reset instructions.
           </p>
@@ -78,7 +78,7 @@ const ForgotPassword = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
               placeholder="you@example.com"
               required
             />
@@ -87,7 +87,7 @@ const ForgotPassword = () => {
           <button
             type="submit"
             disabled={loading || !email}
-            className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            className="w-full bg-gradient-to-r from-cyan-600 to-teal-600 text-white py-3 rounded-lg font-semibold hover:from-cyan-700 hover:to-teal-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >
             {loading ? (
               <>
@@ -103,7 +103,7 @@ const ForgotPassword = () => {
         <div className="mt-6 text-center">
           <Link 
             to="/login"
-            className="inline-flex items-center text-gray-600 hover:text-gray-800"
+            className="inline-flex items-center text-cyan-600 hover:text-teal-700 font-medium"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Login

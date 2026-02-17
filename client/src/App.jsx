@@ -5,8 +5,10 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import client from './lib/apollo';
 
 // Pages
+import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import Feedback from './pages/Feedback';
 import Dashboard from './pages/Dashboard';
 import MyChallenges from './pages/MyChallenges';
 import Browse from './pages/Browse';
@@ -22,10 +24,12 @@ import ResetPassword from './pages/ResetPassword';
 import VerifyEmail from './pages/VerifyEmail';
 import VerifyEmailCode from './pages/VerifyEmailCode';
 import ChallengeDetail from './pages/ChallengeDetail';
+import AdminDashboard from './pages/AdminDashboard';
 
 // Layout
 import Layout from './components/common/Layout';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import AdminRoute from './components/common/AdminRoute';
 
 function App() {
   return (
@@ -35,8 +39,10 @@ function App() {
           <ThemeProvider>
             <Routes>
               {/* Public routes */}
+              <Route path="/" element={<Landing />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/feedback" element={<Feedback />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
@@ -57,9 +63,13 @@ function App() {
                 <Route path="/notifications" element={<Notifications />} />
               </Route>
 
-              {/* Default redirect */}
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              {/* Admin routes */}
+              <Route element={<AdminRoute><Layout /></AdminRoute>}>
+                <Route path="/admin" element={<AdminDashboard />} />
+              </Route>
+
+              {/* Redirect unknown routes to landing */}
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </ThemeProvider>
         </AuthProvider>

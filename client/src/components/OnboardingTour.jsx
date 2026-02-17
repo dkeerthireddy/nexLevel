@@ -20,7 +20,7 @@ const OnboardingTour = ({ onComplete }) => {
 
   const tourSteps = [
     {
-      title: "Welcome to StreakMate! 🎉",
+      title: "Welcome to nexLevel! 🎉",
       description: "Let's take a quick tour to help you get started. You'll learn how to create challenges, track progress, and stay motivated with friends!",
       icon: Sparkles,
       color: "from-cyan-600 to-blue-600",

@@ -56,6 +56,7 @@ export const GET_ME = gql`
       displayName
       profilePhoto
       emailVerified
+      role
       settings {
         notifications {
           enabled
@@ -517,6 +518,42 @@ export const GET_UPDATES = gql`
         timestamp
       }
       timestamp
+    }
+  }
+`;
+
+// ============================================================
+// FEEDBACK
+// ============================================================
+
+export const SEND_FEEDBACK = gql`
+  mutation SendFeedback($name: String!, $email: String!, $subject: String!, $message: String!) {
+    sendFeedback(name: $name, email: $email, subject: $subject, message: $message) {
+      success
+      message
+    }
+  }
+`;
+
+export const GET_ALL_FEEDBACK = gql`
+  query GetAllFeedback($status: String, $limit: Int, $offset: Int) {
+    allFeedback(status: $status, limit: $limit, offset: $offset) {
+      id
+      name
+      email
+      subject
+      message
+      status
+      createdAt
+    }
+  }
+`;
+
+export const UPDATE_FEEDBACK_STATUS = gql`
+  mutation UpdateFeedbackStatus($feedbackId: ID!, $status: String!) {
+    updateFeedbackStatus(feedbackId: $feedbackId, status: $status) {
+      id
+      status
     }
   }
 `;

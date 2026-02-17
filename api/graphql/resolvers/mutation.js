@@ -1837,10 +1837,9 @@ export const Mutation = {
       throw new Error('Not authenticated');
     }
 
-    // Check if user is admin (you can add isAdmin field to user schema)
-    // For now, we'll allow any authenticated user (update this based on your needs)
+    // Check if user is admin using role field
     const adminUser = await db.collection('users').findOne({ _id: user._id });
-    if (!adminUser?.isAdmin) {
+    if (adminUser?.role !== 'admin' && !adminUser?.isAdmin) {
       throw new Error('Admin access required');
     }
 
@@ -1858,6 +1857,78 @@ export const Mutation = {
     console.log('✅ Feature request status updated:', requestId, status);
 
     return await db.collection('featureRequests').findOne({ _id: new ObjectId(requestId) });
+  },
+
+  // ============================================================
+  // FEEDBACK
+  // ============================================================
+  
+  sendFeedback: async (_, { name, email, subject, message }, { db }) => {
+    try {
+      // Store feedback in database
+      const feedback = {
+        name,
+        email,
+        subject,
+        message,
+        createdAt: new Date(),
+        status: 'pending' // pending, reviewed, resolved
+      };
+
+      const result = await db.collection('feedback').insertOne(feedback);
+
+      // Send email notification to admin
+      try {
+        const { sendFeedbackNotificationToAdmins } = await import('../lib/email.js');
+        await sendFeedbackNotificationToAdmins({
+          name,
+          email,
+          subject,
+          message,
+          createdAt: feedback.createdAt
+        });
+      } catch (emailError) {
+        console.error('⚠️ Failed to send feedback notification email:', emailError);
+        // Don't fail the mutation if email fails
+      }
+
+      console.log('✅ Feedback received from:', email, '- Subject:', subject);
+
+      return {
+        success: true,
+        message: 'Thank you for your feedback! We will review it shortly.'
+      };
+    } catch (error) {
+      console.error('❌ Error saving feedback:', error);
+      return {
+        success: false,
+        message: 'Failed to submit feedback. Please try again later.'
+      };
+    }
+  },
+
+  updateFeedbackStatus: async (_, { feedbackId, status }, { db, user }) => {
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+
+    // Check if user is admin using role field
+    const adminUser = await db.collection('users').findOne({ _id: user._id });
+    if (adminUser?.role !== 'admin' && !adminUser?.isAdmin) {
+      throw new Error('Admin access required');
+    }
+
+    const result = await db.collection('feedback').findOneAndUpdate(
+      { _id: new ObjectId(feedbackId) },
+      { $set: { status, updatedAt: new Date() } },
+      { returnDocument: 'after' }
+    );
+
+    if (!result.value) {
+      throw new Error('Feedback not found');
+    }
+
+    return result.value;
   },
 
   // ============================================================

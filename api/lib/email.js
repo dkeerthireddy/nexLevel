@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer';
 import { decryptSensitiveData } from './auth.js';
 
 /**
- * Email Service for StreakMate App
+ * Email Service for nexLevel App
  */
 
 // Create transporter with user's credentials
@@ -50,7 +50,7 @@ export async function sendChallengeInvitationEmail(recipientEmail, inviterName, 
     }
     
     const mailOptions = {
-      from: `"${inviterName} via ${process.env.APP_NAME || 'StreakMate'}" <${senderEmailConfig.gmailUser}>`,
+      from: `"${inviterName} via ${process.env.APP_NAME || 'nexLevel'}" <${senderEmailConfig.gmailUser}>`,
       to: recipientEmail,
       subject: `🎯 ${inviterName} invited you to join "${challengeName}"`,
       html: `
@@ -74,7 +74,7 @@ export async function sendChallengeInvitationEmail(recipientEmail, inviterName, 
             </div>
             <div class="content">
               <h2>Hi there!</h2>
-              <p><strong>${inviterName}</strong> has invited you to join a challenge on the StreakMate.</p>
+              <p><strong>${inviterName}</strong> has invited you to join a challenge on nexLevel.</p>
               
               ${inviteMessage ? `<p style="background: #fff; padding: 15px; border-radius: 5px; font-style: italic;">"${inviteMessage}"</p>` : ''}
               
@@ -94,7 +94,7 @@ export async function sendChallengeInvitationEmail(recipientEmail, inviterName, 
               </p>
             </div>
             <div class="footer">
-              <p>This email was sent by the StreakMate</p>
+              <p>This email was sent by nexLevel</p>
               <p>If you didn't expect this email, you can safely ignore it.</p>
             </div>
           </div>
@@ -139,7 +139,7 @@ export async function sendChallengeInvitationEmailAdmin(recipientEmail, inviterN
     const appUrl = process.env.CLIENT_URL || 'http://localhost:5173';
 
     const mailOptions = {
-      from: `"${process.env.APP_NAME || 'StreakMate'}" <${adminEmail}>`,
+      from: `"${process.env.APP_NAME || 'nexLevel'}" <${adminEmail}>`,
       to: recipientEmail,
       subject: `🎯 ${inviterName} invited you to join "${challengeName}"`,
       html: `
@@ -163,7 +163,7 @@ export async function sendChallengeInvitationEmailAdmin(recipientEmail, inviterN
             </div>
             <div class="content">
               <h2>Hi there!</h2>
-              <p><strong>${inviterName}</strong> has invited you to join a challenge on StreakMate.</p>
+              <p><strong>${inviterName}</strong> has invited you to join a challenge on nexLevel.</p>
               
               ${inviteMessage ? `<p style="background: #fff; padding: 15px; border-radius: 5px; font-style: italic; border-left: 3px solid #06b6d4;">"${inviteMessage}"</p>` : ''}
               
@@ -183,7 +183,7 @@ export async function sendChallengeInvitationEmailAdmin(recipientEmail, inviterN
               </p>
             </div>
             <div class="footer">
-              <p>This email was sent by StreakMate</p>
+              <p>This email was sent by nexLevel</p>
               <p>If you didn't expect this email, you can safely ignore it.</p>
             </div>
           </div>
@@ -233,7 +233,7 @@ export async function sendNotificationEmail(recipientEmail, recipientName, notif
     const subject = notificationTitles[notification.type] || '🔔 Notification';
     
     const mailOptions = {
-      from: `"${process.env.APP_NAME || 'StreakMate'}" <${recipientEmailConfig.gmailUser}>`,
+      from: `"${process.env.APP_NAME || 'nexLevel'}" <${recipientEmailConfig.gmailUser}>`,
       to: recipientEmail,
       subject: `${subject} - ${notification.title}`,
       html: `
@@ -266,7 +266,7 @@ export async function sendNotificationEmail(recipientEmail, recipientName, notif
               </center>
             </div>
             <div class="footer">
-              <p>This email was sent by the StreakMate</p>
+              <p>This email was sent by nexLevel</p>
               <p><a href="${process.env.APP_URL || 'http://localhost:5173'}/settings">Manage notification settings</a></p>
             </div>
           </div>
@@ -300,7 +300,7 @@ export async function sendChallengeExitEmail(recipientEmail, recipientName, chal
     }
     
     const mailOptions = {
-      from: `"${process.env.APP_NAME || 'StreakMate'}" <${recipientEmailConfig.gmailUser}>`,
+      from: `"${process.env.APP_NAME || 'nexLevel'}" <${recipientEmailConfig.gmailUser}>`,
       to: recipientEmail,
       subject: `👋 ${partnerName} has left the challenge "${challengeName}"`,
       html: `
@@ -336,7 +336,7 @@ export async function sendChallengeExitEmail(recipientEmail, recipientName, chal
               </center>
             </div>
             <div class="footer">
-              <p>This email was sent by the StreakMate</p>
+              <p>This email was sent by nexLevel</p>
             </div>
           </div>
         </body>
@@ -381,7 +381,7 @@ export async function sendPasswordResetEmail(recipientEmail, recipientName, rese
     const resetUrl = `${appUrl}/reset-password?token=${resetToken}`;
 
     const mailOptions = {
-      from: `"${process.env.APP_NAME || 'StreakMate'}" <${adminEmail}>`,
+      from: `"${process.env.APP_NAME || 'nexLevel'}" <${adminEmail}>`,
       to: recipientEmail,
       subject: '🔐 Password Reset Request',
       html: `
@@ -434,12 +434,12 @@ export async function sendEmailVerificationEmail(recipientEmail, recipientName, 
     const verifyUrl = `${appUrl}/verify-email?token=${verificationToken}`;
 
     const mailOptions = {
-      from: `"${process.env.APP_NAME || 'StreakMate'}" <${recipientEmailConfig.gmailUser}>`,
+      from: `"${process.env.APP_NAME || 'nexLevel'}" <${recipientEmailConfig.gmailUser}>`,
       to: recipientEmail,
       subject: '✉️ Verify Your Email Address',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #4F46E5;">Welcome to StreakMate! 🎉</h2>
+          <h2 style="color: #4F46E5;">Welcome to nexLevel! 🎉</h2>
           <p>Hi ${recipientName},</p>
           <p>Please verify your email address to complete your registration and unlock all features:</p>
           
@@ -492,12 +492,12 @@ export async function sendSignupVerificationEmail(recipientEmail, recipientName,
     });
 
     const mailOptions = {
-      from: `"${process.env.APP_NAME || 'StreakMate'}" <${adminEmail}>`,
+      from: `"${process.env.APP_NAME || 'nexLevel'}" <${adminEmail}>`,
       to: recipientEmail,
       subject: '🔐 Your Verification Code',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <h2 style="color: #4F46E5;">Welcome to StreakMate! 🎉</h2>
+          <h2 style="color: #4F46E5;">Welcome to nexLevel! 🎉</h2>
           <p>Hi ${recipientName},</p>
           <p>Thank you for signing up! Please use the verification code below to verify your email address:</p>
           
@@ -552,7 +552,7 @@ export async function sendPasswordChangeEmail(recipientEmail, recipientName, ver
     });
 
     const mailOptions = {
-      from: `"${process.env.APP_NAME || 'StreakMate'}" <${adminEmail}>`,
+      from: `"${process.env.APP_NAME || 'nexLevel'}" <${adminEmail}>`,
       to: recipientEmail,
       subject: '🔐 Password Change Verification Code',
       html: `
@@ -587,6 +587,87 @@ export async function sendPasswordChangeEmail(recipientEmail, recipientName, ver
   }
 }
 
+/**
+ * Send feedback notification to admins
+ */
+export async function sendFeedbackNotificationToAdmins(feedbackData) {
+  try {
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.GMAIL_USER;
+    const adminPassword = process.env.ADMIN_PASSWORD || process.env.GMAIL_APP_PASSWORD;
+
+    if (!adminEmail || !adminPassword) {
+      console.log('⚠️ Admin email not configured - skipping feedback notification');
+      return { success: false, error: 'Admin email not configured' };
+    }
+
+    const transport = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: adminEmail,
+        pass: adminPassword
+      }
+    });
+
+    const mailOptions = {
+      from: `"${process.env.APP_NAME || 'nexLevel'}" <${adminEmail}>`,
+      to: adminEmail,
+      subject: `📬 New Feedback Submission: ${feedbackData.subject}`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #06b6d4 0%, #14b8a6 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+            .info-box { background: white; padding: 20px; margin: 20px 0; border-left: 4px solid #06b6d4; border-radius: 5px; }
+            .label { font-weight: bold; color: #666; margin-bottom: 5px; }
+            .value { color: #333; margin-bottom: 15px; }
+            .message-box { background: #f0f9ff; padding: 15px; border-radius: 5px; margin: 15px 0; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>📬 New Feedback Received</h1>
+            </div>
+            <div class="content">
+              <div class="info-box">
+                <div class="label">From:</div>
+                <div class="value">${feedbackData.name} (${feedbackData.email})</div>
+                
+                <div class="label">Subject:</div>
+                <div class="value">${feedbackData.subject}</div>
+                
+                <div class="label">Message:</div>
+                <div class="message-box">
+                  ${feedbackData.message.replace(/\n/g, '<br>')}
+                </div>
+                
+                <div class="label">Submitted:</div>
+                <div class="value">${new Date(feedbackData.createdAt).toLocaleString()}</div>
+              </div>
+              
+              <p style="color: #666; font-size: 14px;">
+                You can manage this feedback in the admin dashboard.
+              </p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `
+    };
+
+    await transport.sendMail(mailOptions);
+    console.log('✅ Feedback notification sent to admin:', adminEmail);
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Error sending feedback notification:', error);
+    return { success: false, error: error.message };
+  }
+}
+
 export default {
   sendChallengeInvitationEmail,
   sendChallengeInvitationEmailAdmin,
@@ -595,5 +676,6 @@ export default {
   sendPasswordResetEmail,
   sendEmailVerificationEmail,
   sendSignupVerificationEmail,
-  sendPasswordChangeEmail
+  sendPasswordChangeEmail,
+  sendFeedbackNotificationToAdmins
 };

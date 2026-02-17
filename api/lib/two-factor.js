@@ -7,7 +7,7 @@ import crypto from 'crypto';
  */
 export async function generateTwoFactorSecret(userEmail) {
   const secret = speakeasy.generateSecret({
-    name: `StreakMate (${userEmail})`,
+    name: `nexLevel (${userEmail})`,
     length: 32
   });
 

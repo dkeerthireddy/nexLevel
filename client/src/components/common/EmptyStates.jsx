@@ -2,7 +2,7 @@ import React from 'react';
 import { Target, Trophy, Sparkles, Users, Calendar, CheckCircle } from 'lucide-react';
 
 /**
- * Empty State Illustrations for StreakMate
+ * Empty State Illustrations for nexLevel
  * Beautiful, on-brand SVG illustrations for empty states
  */
 
