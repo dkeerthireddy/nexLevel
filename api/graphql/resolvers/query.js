@@ -584,6 +584,18 @@ export const Query = {
       .sort({ achievementDate: -1 })
       .toArray();
   },
+
+  // Environment Check (for debugging)
+  checkEnv: async () => {
+    const envInfo = {
+      ADMIN_EMAIL: process.env.ADMIN_EMAIL ? `SET (${process.env.ADMIN_EMAIL.substring(0, 3)}***)` : 'NOT SET',
+      ADMIN_EMAIL_PASSWORD: process.env.ADMIN_EMAIL_PASSWORD ? `SET (length: ${process.env.ADMIN_EMAIL_PASSWORD.length})` : 'NOT SET',
+      CORS_ORIGIN: process.env.CORS_ORIGIN || 'NOT SET',
+      NODE_ENV: process.env.NODE_ENV || 'development'
+    };
+    console.log('🔍 Environment Check:', JSON.stringify(envInfo, null, 2));
+    return JSON.stringify(envInfo, null, 2);
+  },
 };
 
 export default Query;

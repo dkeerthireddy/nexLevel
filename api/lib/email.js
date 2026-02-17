@@ -604,9 +604,7 @@ export async function sendFeedbackNotificationToAdmins(feedbackData) {
 
     if (!adminEmail || !adminPassword) {
       console.error('❌ Admin email not configured - skipping feedback notification');
-      console.error('❌ ADMIN_EMAIL:', adminEmail || 'NOT SET');
-      console.error('❌ ADMIN_EMAIL_PASSWORD:', adminPassword ? 'SET but empty' : 'NOT SET');
-      return { success: false, error: 'Admin email not configured' };
+      throw new Error('Admin email not configured');
     }
 
     console.log('📧 Creating email transporter...');
@@ -625,7 +623,7 @@ export async function sendFeedbackNotificationToAdmins(feedbackData) {
       console.log('✅ Email transporter verified successfully');
     } catch (verifyError) {
       console.error('❌ Email transporter verification failed:', verifyError.message);
-      return { success: false, error: `Email configuration invalid: ${verifyError.message}` };
+      throw new Error(`Email configuration invalid: ${verifyError.message}`);
     }
 
     console.log('📧 Preparing email content...');
@@ -684,19 +682,11 @@ export async function sendFeedbackNotificationToAdmins(feedbackData) {
     console.log('📧 Sending email to:', mailOptions.to);
     console.log('📧 Email subject:', mailOptions.subject);
 
-    const info = await transport.sendMail(mailOptions);
-    console.log('✅ Feedback notification sent successfully!');
-    console.log('✅ Message ID:', info.messageId);
-    console.log('✅ Response:', info.response);
-    console.log('✅ Email sent to admin:', adminEmail);
-    
-    return { success: true, messageId: info.messageId };
+    await transport.sendMail(mailOptions);
+    console.log('✅ Feedback notification sent to:', adminEmail);
   } catch (error) {
-    console.error('❌ Error sending feedback notification:', error.message);
-    console.error('❌ Error code:', error.code);
-    console.error('❌ Error command:', error.command);
-    console.error('❌ Full error:', error);
-    return { success: false, error: error.message };
+    console.error('❌ Error sending feedback notification:', error);
+    throw new Error('Failed to send feedback notification email');
   }
 }
 
