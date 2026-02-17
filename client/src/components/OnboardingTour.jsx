@@ -58,7 +58,7 @@ const OnboardingTour = ({ onComplete }) => {
       title: "Track Your Progress 📊",
       description: "Watch your streaks grow! See your stats, completion rates, and celebrate milestones with achievements and badges.",
       icon: TrendingUp,
-      color: "from-indigo-600 to-purple-600",
+      color: "from-cyan-600 to-teal-600",
       image: "📈",
       highlight: "progress",
       quickWin: "View your dashboard",
@@ -67,7 +67,7 @@ const OnboardingTour = ({ onComplete }) => {
       title: "AI Coach & Insights 🤖",
       description: "Get personalized motivation, challenge suggestions, and insights from your AI coach. It learns from your patterns to help you succeed!",
       icon: Sparkles,
-      color: "from-pink-600 to-rose-600",
+      color: "from-rose-600 to-orange-600",
       image: "🤖",
       highlight: "ai-coach",
       quickWin: "Chat with AI Coach",
@@ -186,14 +186,14 @@ const OnboardingTour = ({ onComplete }) => {
           {currentStep === 1 && (
             <div className="mb-6">
               <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
-                <Sparkles className="w-5 h-5 mr-2 text-purple-600 dark:text-purple-400" />
+                <Sparkles className="w-5 h-5 mr-2 text-cyan-600 dark:text-cyan-400" />
                 Try These Popular Challenges
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {sampleChallenges.map((challenge, index) => (
                   <div
                     key={index}
-                    className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-2 border-purple-200 dark:border-purple-800 rounded-xl hover:shadow-lg transition-all cursor-pointer"
+                    className="p-4 bg-gradient-to-br from-cyan-50 to-teal-50 dark:from-cyan-900/20 dark:to-teal-900/20 border-2 border-cyan-200 dark:border-cyan-800 rounded-xl hover:shadow-lg transition-all cursor-pointer"
                   >
                     <div className="flex items-start space-x-3">
                       <span className="text-3xl">{challenge.icon}</span>
@@ -205,7 +205,7 @@ const OnboardingTour = ({ onComplete }) => {
                           {challenge.description}
                         </p>
                         <div className="flex items-center space-x-2">
-                          <span className="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs rounded-full">
+                          <span className="px-2 py-0.5 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 text-xs rounded-full">
                             {challenge.duration} days
                           </span>
                           <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs rounded-full">
@@ -240,7 +240,7 @@ const OnboardingTour = ({ onComplete }) => {
           {/* Tips for each step */}
           <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 mb-6">
             <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-2 flex items-center">
-              <Sparkles className="w-4 h-4 mr-2 text-purple-600 dark:text-purple-400" />
+              <Sparkles className="w-4 h-4 mr-2 text-cyan-600 dark:text-cyan-400" />
               Pro Tip
             </h4>
             <p className="text-sm text-gray-700 dark:text-gray-300">

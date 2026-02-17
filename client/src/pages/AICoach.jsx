@@ -178,7 +178,7 @@ const AICoach = () => {
                 >
                   <div className="text-4xl mb-3">{action.icon}</div>
                   <p className="font-bold text-white text-lg mb-1">{action.label}</p>
-                  <p className="text-sm text-purple-100">{action.prompt.substring(0, 40)}...</p>
+                  <p className="text-sm text-cyan-100">{action.prompt.substring(0, 40)}...</p>
                 </button>
               ))}
             </div>

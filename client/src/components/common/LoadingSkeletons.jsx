@@ -39,7 +39,7 @@ export const CardSkeleton = () => (
 
 // Dashboard Hero Skeleton
 export const HeroSkeleton = () => (
-  <div className="relative bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-700 dark:to-pink-700 rounded-3xl p-8 sm:p-10 lg:p-12 overflow-hidden shadow-brand-lg">
+  <div className="relative bg-gradient-to-r from-cyan-600 to-teal-600 dark:from-cyan-700 dark:to-teal-700 rounded-3xl p-8 sm:p-10 lg:p-12 overflow-hidden shadow-brand-lg">
     <div className="relative grid lg:grid-cols-2 gap-8 items-center">
       <div>
         <Skeleton className="h-8 w-32 mb-4 bg-white/20" />

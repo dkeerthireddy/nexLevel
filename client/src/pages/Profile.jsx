@@ -27,7 +27,7 @@ const Profile = () => {
             <img
               src={user.profilePhoto}
               alt={user.displayName}
-              className="w-28 h-28 rounded-2xl shadow-lg border-4 border-purple-100"
+              className="w-28 h-28 rounded-2xl shadow-lg border-4 border-cyan-100"
             />
           ) : (
             <div className="w-28 h-28 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-xl">

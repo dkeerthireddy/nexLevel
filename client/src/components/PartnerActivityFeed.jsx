@@ -114,7 +114,7 @@ const PartnerActivityFeed = () => {
     return (
       <div className="bg-white dark:bg-card rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-border">
         <h3 className="text-lg font-semibold mb-4 flex items-center">
-          <User className="w-5 h-5 mr-2 text-purple-600" />
+          <User className="w-5 h-5 mr-2 text-cyan-600" />
           Partner Activity
         </h3>
         <div className="space-y-3">
@@ -136,7 +136,7 @@ const PartnerActivityFeed = () => {
     return (
       <div className="bg-white dark:bg-card rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-border">
         <h3 className="text-lg font-semibold mb-4 flex items-center text-gray-900 dark:text-gray-100">
-          <User className="w-5 h-5 mr-2 text-purple-600" />
+          <User className="w-5 h-5 mr-2 text-cyan-600" />
           Partner Activity
         </h3>
         <div className="text-center py-8">
@@ -155,11 +155,11 @@ const PartnerActivityFeed = () => {
       {/* Header with notification badge */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold flex items-center text-gray-900 dark:text-gray-100">
-          <User className="w-5 h-5 mr-2 text-purple-600 dark:text-purple-400" />
+          <User className="w-5 h-5 mr-2 text-cyan-600 dark:text-cyan-400" />
           Partner Activity
         </h3>
         {newActivities.length > 0 && (
-          <span className="inline-flex items-center px-2 py-1 bg-gradient-to-r from-pink-500 to-orange-500 dark:from-pink-600 dark:to-orange-600 text-white text-xs font-bold rounded-full animate-pulse">
+          <span className="inline-flex items-center px-2 py-1 bg-gradient-to-r from-rose-500 to-orange-500 dark:from-rose-600 dark:to-orange-600 text-white text-xs font-bold rounded-full animate-pulse">
             {newActivities.length} new
           </span>
         )}
@@ -183,13 +183,13 @@ const PartnerActivityFeed = () => {
             key={activity.id} 
             className={`relative flex items-start space-x-3 p-3 rounded-lg transition-all ${
               activity.isNew 
-                ? 'bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-l-2 border-purple-500 dark:border-purple-400 animate-fadeIn' 
+                ? 'bg-gradient-to-r from-cyan-50 to-teal-50 dark:from-cyan-900/20 dark:to-teal-900/20 border-l-2 border-cyan-500 dark:border-cyan-400 animate-fadeIn' 
                 : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
             }`}
           >
             {/* New badge */}
             {activity.isNew && (
-              <span className="absolute top-2 right-2 px-1.5 py-0.5 bg-purple-600 dark:bg-purple-500 text-white text-xs font-bold rounded-full">
+              <span className="absolute top-2 right-2 px-1.5 py-0.5 bg-cyan-600 dark:bg-cyan-500 text-white text-xs font-bold rounded-full">
                 NEW
               </span>
             )}
@@ -203,7 +203,7 @@ const PartnerActivityFeed = () => {
                   className="w-10 h-10 rounded-full ring-2 ring-green-400 dark:ring-green-500"
                 />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 dark:from-purple-600 dark:to-pink-600 flex items-center justify-center text-white font-semibold ring-2 ring-green-400 dark:ring-green-500">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-teal-500 dark:from-cyan-600 dark:to-teal-600 flex items-center justify-center text-white font-semibold ring-2 ring-green-400 dark:ring-green-500">
                   {activity.partner.displayName[0].toUpperCase()}
                 </div>
               )}
@@ -219,7 +219,7 @@ const PartnerActivityFeed = () => {
                 <span className="font-semibold">{activity.partner.displayName}</span>
                 {' '}{activity.action}{' '}
                 {activity.task && (
-                  <span className="font-medium text-purple-600 dark:text-purple-400">
+                  <span className="font-medium text-cyan-600 dark:text-cyan-400">
                     {activity.task.title}
                   </span>
                 )}
@@ -244,7 +244,7 @@ const PartnerActivityFeed = () => {
               {/* Social motivation message */}
               {activity.isNew && (
                 <div className="mt-2 flex items-center space-x-2">
-                  <button className="inline-flex items-center space-x-1 px-2 py-1 bg-pink-100 dark:bg-pink-900/30 hover:bg-pink-200 dark:hover:bg-pink-900/50 text-pink-700 dark:text-pink-400 rounded-full text-xs font-medium transition-colors">
+                  <button className="inline-flex items-center space-x-1 px-2 py-1 bg-rose-100 dark:bg-rose-900/30 hover:bg-rose-200 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-400 rounded-full text-xs font-medium transition-colors">
                     <Heart className="w-3 h-3" />
                     <span>Cheer</span>
                   </button>
@@ -269,14 +269,14 @@ const PartnerActivityFeed = () => {
 
       {/* View All Link & Stats */}
       {activities.length > 10 && (
-        <button className="w-full mt-4 text-sm text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium transition-colors">
+        <button className="w-full mt-4 text-sm text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 font-medium transition-colors">
           View all {activities.length} activities →
         </button>
       )}
 
       {/* Social motivation summary */}
       {recentActivities.length > 0 && (
-        <div className="mt-4 p-3 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg border border-indigo-100 dark:border-indigo-800/50">
+        <div className="mt-4 p-3 bg-gradient-to-r from-cyan-50 to-teal-50 dark:from-cyan-900/20 dark:to-teal-900/20 rounded-lg border border-cyan-100 dark:border-cyan-800/50">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <TrendingUp className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />

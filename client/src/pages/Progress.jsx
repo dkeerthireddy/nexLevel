@@ -50,7 +50,7 @@ const Progress = () => {
 
       {/* Overall Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl p-6 text-white">
+        <div className="bg-gradient-to-br from-cyan-500 to-teal-600 rounded-xl p-6 text-white">
           <Target className="w-8 h-8 mb-3 opacity-80" />
           <p className="text-3xl font-bold mb-1">{user?.stats?.totalChallenges || 0}</p>
           <p className="text-indigo-100 text-sm">Total Challenges</p>
@@ -68,10 +68,10 @@ const Progress = () => {
           <p className="text-green-100 text-sm">Total Check-ins</p>
         </div>
 
-        <div className="bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl p-6 text-white">
+        <div className="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl p-6 text-white">
           <Award className="w-8 h-8 mb-3 opacity-80" />
           <p className="text-3xl font-bold mb-1">{user?.stats?.completedChallenges || 0}</p>
-          <p className="text-purple-100 text-sm">Completed</p>
+          <p className="text-cyan-100 text-sm">Completed</p>
         </div>
       </div>
 
@@ -172,9 +172,9 @@ const Progress = () => {
             </div>
           )}
           {user?.stats?.completedChallenges >= 1 && (
-            <div className="bg-white rounded-xl p-4 text-center border border-purple-200 shadow-sm">
-              <div className="w-12 h-12 mx-auto mb-2 bg-purple-100 rounded-full flex items-center justify-center">
-                <Target className="w-6 h-6 text-purple-600" />
+            <div className="bg-white rounded-xl p-4 text-center border border-cyan-200 shadow-sm">
+              <div className="w-12 h-12 mx-auto mb-2 bg-cyan-100 rounded-full flex items-center justify-center">
+                <Target className="w-6 h-6 text-cyan-600" />
               </div>
               <p className="font-semibold text-gray-900">Goal Achiever</p>
               <p className="text-xs text-gray-600">1+ completed</p>

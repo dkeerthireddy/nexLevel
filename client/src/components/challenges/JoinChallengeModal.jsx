@@ -58,9 +58,9 @@ const JoinChallengeModal = ({ challenge, onClose }) => {
         {/* Content */}
         <div className="p-6 space-y-6">
           {/* Challenge Preview */}
-          <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-100">
+          <div className="bg-gradient-to-br from-cyan-50 to-teal-50 rounded-xl p-6 border border-cyan-100">
             <div className="flex items-start space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 bg-gradient-to-br from-cyan-600 to-teal-600 rounded-lg flex items-center justify-center flex-shrink-0">
                 <Target className="w-6 h-6 text-white" />
               </div>
               <div className="flex-1">
@@ -70,7 +70,7 @@ const JoinChallengeModal = ({ challenge, onClose }) => {
                   <span className="px-3 py-1 bg-white rounded-full text-sm font-medium text-indigo-700">
                     {challenge.duration} days
                   </span>
-                  <span className="px-3 py-1 bg-white rounded-full text-sm font-medium text-purple-700 capitalize">
+                  <span className="px-3 py-1 bg-white rounded-full text-sm font-medium text-cyan-700 capitalize">
                     {challenge.frequency}
                   </span>
                   {challenge.tasks && challenge.tasks.length > 0 && (
@@ -142,7 +142,7 @@ const JoinChallengeModal = ({ challenge, onClose }) => {
                           className="w-10 h-10 rounded-full mr-3"
                         />
                       ) : (
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center mr-3">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-600 to-teal-600 flex items-center justify-center mr-3">
                           <span className="text-white font-semibold text-sm">
                             {friend.displayName?.charAt(0).toUpperCase()}
                           </span>
@@ -177,7 +177,7 @@ const JoinChallengeModal = ({ challenge, onClose }) => {
           <button
             onClick={handleJoin}
             disabled={joining}
-            className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold px-8 py-3 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all disabled:opacity-50 flex items-center space-x-2"
+            className="bg-gradient-to-r from-cyan-600 to-teal-600 text-white font-semibold px-8 py-3 rounded-lg hover:from-cyan-700 hover:to-teal-700 transition-all disabled:opacity-50 flex items-center space-x-2"
           >
             {joining ? (
               <>

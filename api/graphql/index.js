@@ -28,7 +28,18 @@ const typeDefs = readFileSync(join(__dirname, 'schema.graphql'), 'utf-8');
 
 // Configuration
 const PORT = process.env.PORT || 4000;
-const CORS_ORIGIN = process.env.CORS_ORIGIN || ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'];
+
+// Parse CORS_ORIGIN - can be comma-separated string or array
+let CORS_ORIGIN;
+if (process.env.CORS_ORIGIN) {
+  // If it's a string with commas, split it into an array
+  CORS_ORIGIN = process.env.CORS_ORIGIN.includes(',') 
+    ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
+    : process.env.CORS_ORIGIN;
+} else {
+  // Default development origins
+  CORS_ORIGIN = ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'];
+}
 
 /**
  * Initialize and start the GraphQL server
@@ -79,19 +90,27 @@ async function startServer() {
       // Allow requests with no origin (like mobile apps, Postman, or server-to-server)
       if (!origin) return callback(null, true);
       
+      console.log('🔍 CORS check for origin:', origin);
+      console.log('🔍 Allowed origins:', CORS_ORIGIN);
+      
       // If CORS_ORIGIN is an array, check if origin is in the list
       if (Array.isArray(CORS_ORIGIN)) {
         if (CORS_ORIGIN.includes(origin)) {
+          console.log('✅ CORS allowed for origin:', origin);
           return callback(null, true);
         }
       } else if (CORS_ORIGIN === origin) {
+        console.log('✅ CORS allowed for origin:', origin);
         return callback(null, true);
       }
       
       // Reject origin
+      console.log('❌ CORS rejected for origin:', origin);
       callback(new Error('Not allowed by CORS'));
     },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Apollo-Require-Preflight'],
   }));
 
   // Initialize passport

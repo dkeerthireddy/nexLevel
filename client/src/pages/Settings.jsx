@@ -407,14 +407,14 @@ const Settings = () => {
       {/* AI Settings */}
       <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
         <div className="flex items-center mb-6">
-          <Bot className="w-6 h-6 text-purple-600 mr-3" />
+          <Bot className="w-6 h-6 text-cyan-600 mr-3" />
           <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">AI Features</h2>
         </div>
 
         <div className="space-y-3">
           <label className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:bg-gray-700">
             <div className="flex items-center">
-              <Bot className="w-5 h-5 text-purple-600 mr-3" />
+              <Bot className="w-5 h-5 text-cyan-600 mr-3" />
               <div>
                 <p className="font-medium text-gray-900 dark:text-gray-100">AI Coach</p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Get personalized motivation and guidance</p>
@@ -430,7 +430,7 @@ const Settings = () => {
 
           <label className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:bg-gray-700">
             <div className="flex items-center">
-              <Camera className="w-5 h-5 text-purple-600 mr-3" />
+              <Camera className="w-5 h-5 text-cyan-600 mr-3" />
               <div>
                 <p className="font-medium text-gray-900 dark:text-gray-100">Photo Verification</p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">AI-powered check-in photo analysis</p>
@@ -446,7 +446,7 @@ const Settings = () => {
 
           <label className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:bg-gray-700">
             <div className="flex items-center">
-              <Bot className="w-5 h-5 text-purple-600 mr-3" />
+              <Bot className="w-5 h-5 text-cyan-600 mr-3" />
               <div>
                 <p className="font-medium text-gray-900 dark:text-gray-100">Smart Recommendations</p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Challenge suggestions based on your goals</p>
@@ -462,7 +462,7 @@ const Settings = () => {
 
           <label className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:bg-gray-700">
             <div className="flex items-center">
-              <FileText className="w-5 h-5 text-purple-600 mr-3" />
+              <FileText className="w-5 h-5 text-cyan-600 mr-3" />
               <div>
                 <p className="font-medium text-gray-900 dark:text-gray-100">Weekly Reports</p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Detailed AI-generated progress analysis</p>

@@ -48,7 +48,7 @@ class ErrorBoundary extends Component {
             <div className="space-y-3">
               <button
                 onClick={() => window.location.reload()}
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-3 rounded-lg hover:shadow-lg transition-all"
+                className="w-full bg-gradient-to-r from-cyan-600 to-teal-600 text-white font-semibold py-3 rounded-lg hover:shadow-lg transition-all"
               >
                 Reload Page
               </button>

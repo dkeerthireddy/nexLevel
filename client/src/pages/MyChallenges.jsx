@@ -195,7 +195,7 @@ const MyChallenges = () => {
                     <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full font-medium">
                       {uc.challenge.frequency}
                     </span>
-                    <span className="px-3 py-1 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">
+                    <span className="px-3 py-1 bg-cyan-100 text-cyan-700 text-xs rounded-full font-medium">
                       {uc.challenge.duration} days
                     </span>
                     <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
@@ -270,7 +270,7 @@ const MyChallenges = () => {
                 </div>
                 <div className="text-center">
                   <div className="flex items-center justify-center mb-1">
-                    <Calendar className="w-5 h-5 text-purple-500" />
+                    <Calendar className="w-5 h-5 text-cyan-500" />
                   </div>
                   <p className="text-2xl font-bold text-gray-900">{Math.round(uc.completionRate)}%</p>
                   <p className="text-xs text-gray-600">Completion</p>

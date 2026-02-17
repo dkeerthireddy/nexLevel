@@ -230,10 +230,10 @@ export const EmptyState = ({
   return (
     <div className="text-center py-12">
       <div className="relative inline-block mb-6">
-        <div className="w-24 h-24 mx-auto rounded-2xl bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 flex items-center justify-center">
-          <Icon className="w-12 h-12 text-purple-500 dark:text-purple-400" />
+        <div className="w-24 h-24 mx-auto rounded-2xl bg-gradient-to-br from-cyan-100 to-teal-100 dark:from-cyan-900/30 dark:to-teal-900/30 flex items-center justify-center">
+          <Icon className="w-12 h-12 text-cyan-500 dark:text-cyan-400" />
         </div>
-        <div className="absolute inset-0 w-24 h-24 mx-auto bg-purple-400 dark:bg-purple-600 rounded-2xl blur-2xl opacity-20 animate-pulse"></div>
+        <div className="absolute inset-0 w-24 h-24 mx-auto bg-cyan-400 dark:bg-cyan-600 rounded-2xl blur-2xl opacity-20 animate-pulse"></div>
       </div>
       
       <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
@@ -246,7 +246,7 @@ export const EmptyState = ({
       {actionLabel && onAction && (
         <button
           onClick={onAction}
-          className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-xl hover:shadow-brand transform hover:scale-105 transition-all duration-300 shadow-lg font-semibold"
+          className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 text-white rounded-xl hover:shadow-brand transform hover:scale-105 transition-all duration-300 shadow-lg font-semibold"
         >
           {actionLabel}
         </button>

@@ -99,7 +99,7 @@ const ChallengeDetail = () => {
         </div>
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
           <div className="flex items-center justify-center mb-2">
-            <TrendingUp className="w-8 h-8 text-purple-500" />
+            <TrendingUp className="w-8 h-8 text-cyan-500" />
           </div>
           <p className="text-3xl font-bold text-gray-900 text-center">{Math.round(uc.completionRate)}%</p>
           <p className="text-sm text-gray-600 text-center">Completion Rate</p>

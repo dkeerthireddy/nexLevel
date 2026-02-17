@@ -32,7 +32,7 @@ export const BADGE_DEFINITIONS = {
     name: 'Month Master',
     description: 'Completed 30 consecutive days',
     icon: Flame,
-    color: 'from-red-500 to-pink-600',
+    color: 'from-red-500 to-rose-600',
     requirement: 30,
     type: 'streak',
   },
@@ -61,7 +61,7 @@ export const BADGE_DEFINITIONS = {
     name: 'Challenge Seeker',
     description: 'Completed 5 challenges',
     icon: Trophy,
-    color: 'from-purple-400 to-pink-500',
+    color: 'from-cyan-400 to-teal-500',
     requirement: 5,
     type: 'challenge',
   },
@@ -70,7 +70,7 @@ export const BADGE_DEFINITIONS = {
     name: 'Goal Crusher',
     description: 'Completed 25 challenges',
     icon: Award,
-    color: 'from-purple-500 to-pink-600',
+    color: 'from-cyan-500 to-teal-600',
     requirement: 25,
     type: 'challenge',
   },
@@ -220,7 +220,7 @@ export const BadgeNotification = ({ badge, onClose }) => {
             <Badge badge={badge} earned={true} showDetails={false} size="xl" />
           </div>
           
-          <h4 className="text-xl font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-2">
+          <h4 className="text-xl font-bold text-transparent bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text mb-2">
             {badge.name}
           </h4>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
@@ -229,7 +229,7 @@ export const BadgeNotification = ({ badge, onClose }) => {
           
           <button
             onClick={onClose}
-            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-xl font-semibold shadow-brand transform hover:scale-105 transition-all duration-300"
+            className="px-6 py-3 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 text-white rounded-xl font-semibold shadow-brand transform hover:scale-105 transition-all duration-300"
           >
             Awesome!
           </button>
@@ -245,7 +245,7 @@ export const BadgeProgress = ({ badge, currentProgress }) => {
   const Icon = badge.icon;
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600 transition-all">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-200 dark:border-gray-700 hover:border-cyan-300 dark:hover:border-cyan-600 transition-all">
       <div className="flex items-center gap-4 mb-3">
         <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${badge.color} p-0.5`}>
           <div className="w-full h-full rounded-full bg-white dark:bg-gray-800 flex items-center justify-center">

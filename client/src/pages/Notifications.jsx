@@ -38,7 +38,7 @@ const Notifications = () => {
       case 'streak_milestone':
         return <Flame className="w-5 h-5 text-orange-500" />;
       case 'challenge_invitation':
-        return <Mail className="w-5 h-5 text-purple-500" />;
+        return <Mail className="w-5 h-5 text-cyan-500" />;
       case 'challenge_exit':
         return <BellOff className="w-5 h-5 text-red-500" />;
       case 'friend_suggestion':
