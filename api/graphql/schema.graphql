@@ -384,6 +384,9 @@ type Query {
   systemStats: SystemStats!
   allFeedback(status: String, limit: Int, offset: Int): [Feedback!]!
   
+  # Debugging (for checking environment variables)
+  checkEnv: String!
+  
   # Polling endpoint for realtime updates
   updates(since: String!): Updates!
 }
