@@ -1,17 +1,8 @@
 import { useState } from 'react';
 import { useMutation } from '@apollo/client';
-import { gql } from '@apollo/client';
 import { Link } from 'react-router-dom';
 import { MessageSquare, Send, CheckCircle, Loader2 } from 'lucide-react';
-
-const SEND_FEEDBACK = gql`
-  mutation SendFeedback($name: String!, $email: String!, $subject: String!, $message: String!) {
-    sendFeedback(name: $name, email: $email, subject: $subject, message: $message) {
-      success
-      message
-    }
-  }
-`;
+import { SEND_FEEDBACK } from '../lib/graphql';
 
 const Feedback = () => {
   const [name, setName] = useState('');

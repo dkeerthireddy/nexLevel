@@ -131,6 +131,20 @@ async function startServer() {
     })
   );
 
+  // Global error handler - ensure CORS headers on errors
+  app.use((err, req, res, next) => {
+    console.error('❌ Global error handler:', err);
+    setCorsHeaders(req, res);
+    res.status(500).json({
+      errors: [{
+        message: err.message || 'Internal server error',
+        extensions: {
+          code: 'INTERNAL_SERVER_ERROR'
+        }
+      }]
+    });
+  });
+
   // Health check endpoint
   app.get('/health', (req, res) => {
     res.json({ 
