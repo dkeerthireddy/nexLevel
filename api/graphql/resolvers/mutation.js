@@ -1878,7 +1878,7 @@ export const Mutation = {
 
       const result = await db.collection('feedback').insertOne(feedback);
 
-      // Send email notification to admin
+      // Send email notification to admin users from database
       try {
         console.log('📧 [FEEDBACK] Starting email notification process...');
         console.log('📧 [FEEDBACK] Environment check - ADMIN_EMAIL:', process.env.ADMIN_EMAIL ? 'SET' : 'NOT SET');
@@ -1890,9 +1890,9 @@ export const Mutation = {
           subject,
           message,
           createdAt: feedback.createdAt
-        });
+        }, db); // Pass database to get admin users
         
-        console.log('✅ [FEEDBACK] Email notification sent successfully!');
+        console.log('✅ [FEEDBACK] Email notification sent successfully to all admins!');
       } catch (emailError) {
         console.error('❌ [FEEDBACK] Failed to send email notification:', emailError.message);
         console.error('❌ [FEEDBACK] Error stack:', emailError.stack);

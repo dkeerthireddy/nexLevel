@@ -590,29 +590,40 @@ export async function sendPasswordChangeEmail(recipientEmail, recipientName, ver
 /**
  * Send feedback notification to admins
  */
-export async function sendFeedbackNotificationToAdmins(feedbackData) {
+export async function sendFeedbackNotificationToAdmins(feedbackData, db) {
   try {
     console.log('📧 Starting feedback notification process...');
     
-    const adminEmail = process.env.ADMIN_EMAIL;
-    const adminPassword = process.env.ADMIN_EMAIL_PASSWORD;
+    // System email for sending (from .env - logistics email)
+    const systemEmail = process.env.ADMIN_EMAIL;
+    const systemPassword = process.env.ADMIN_EMAIL_PASSWORD;
 
-    console.log('📧 ADMIN_EMAIL exists:', !!adminEmail);
-    console.log('📧 ADMIN_EMAIL value:', adminEmail ? `${adminEmail.substring(0, 3)}***` : 'NOT SET');
-    console.log('📧 ADMIN_EMAIL_PASSWORD exists:', !!adminPassword);
-    console.log('📧 ADMIN_EMAIL_PASSWORD length:', adminPassword ? adminPassword.length : 0);
+    console.log('📧 System email exists:', !!systemEmail);
+    console.log('📧 System email value:', systemEmail ? `${systemEmail.substring(0, 3)}***` : 'NOT SET');
+    console.log('📧 System password exists:', !!systemPassword);
 
-    if (!adminEmail || !adminPassword) {
-      console.error('❌ Admin email not configured - skipping feedback notification');
-      throw new Error('Admin email not configured');
+    if (!systemEmail || !systemPassword) {
+      console.error('❌ System email not configured');
+      throw new Error('System email not configured');
     }
 
+    // Get admin users from database
+    const adminUsers = await db.collection('users').find({ role: 'admin' }).toArray();
+    
+    if (!adminUsers || adminUsers.length === 0) {
+      console.error('❌ No admin users found in database');
+      throw new Error('No admin users found');
+    }
+
+    const adminEmails = adminUsers.map(admin => admin.email).filter(email => email);
+    console.log(`📧 Found ${adminEmails.length} admin(s):`, adminEmails.map(e => `${e.substring(0, 3)}***`).join(', '));
+
     console.log('📧 Creating email transporter...');
-    const transport = nodemailer.createTransport({
+    const transport = nodemailer.createTransporter({
       service: 'gmail',
       auth: {
-        user: adminEmail,
-        pass: adminPassword
+        user: systemEmail,
+        pass: systemPassword
       }
     });
 
@@ -628,8 +639,8 @@ export async function sendFeedbackNotificationToAdmins(feedbackData) {
 
     console.log('📧 Preparing email content...');
     const mailOptions = {
-      from: `"${process.env.APP_NAME || 'nexLevel'}" <${adminEmail}>`,
-      to: adminEmail,
+      from: `"${process.env.APP_NAME || 'nexLevel'}" <${systemEmail}>`,
+      to: adminEmails.join(', '), // Send to all admin users from database
       subject: `📬 New Feedback Submission: ${feedbackData.subject}`,
       html: `
         <!DOCTYPE html>
@@ -683,7 +694,7 @@ export async function sendFeedbackNotificationToAdmins(feedbackData) {
     console.log('📧 Email subject:', mailOptions.subject);
 
     await transport.sendMail(mailOptions);
-    console.log('✅ Feedback notification sent to:', adminEmail);
+    console.log('✅ Feedback notification sent to:', adminEmails.join(', '));
   } catch (error) {
     console.error('❌ Error sending feedback notification:', error);
     throw new Error('Failed to send feedback notification email');
