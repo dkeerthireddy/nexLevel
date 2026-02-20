@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
-import { Shield, Users, MessageSquare, Target, Activity, CheckCircle, Clock, AlertCircle, StickyNote, Save, X } from 'lucide-react';
-import { GET_ALL_FEEDBACK, UPDATE_FEEDBACK_STATUS, ADD_FEEDBACK_NOTE, GET_SYSTEM_STATS } from '../lib/graphql';
+import { Shield, Users, MessageSquare, Target, Activity, CheckCircle, Clock, AlertCircle, StickyNote, Save, X, Bot, Power } from 'lucide-react';
+import { GET_ALL_FEEDBACK, UPDATE_FEEDBACK_STATUS, ADD_FEEDBACK_NOTE, GET_SYSTEM_STATS, GET_SYSTEM_SETTINGS, UPDATE_SYSTEM_SETTINGS } from '../lib/graphql';
 import Layout from '../components/common/Layout';
 
 const AdminDashboard = () => {
@@ -12,11 +12,50 @@ const AdminDashboard = () => {
 
   const { data, loading, error, refetch } = useQuery(GET_ALL_FEEDBACK, {
     variables: { status: statusFilter || null, limit: 100 },
-    fetchPolicy: 'network-only'
+    fetchPolicy: 'network-only',
+    onError: (err) => {
+      console.error('❌ GET_ALL_FEEDBACK Error:', err);
+      console.error('Error message:', err.message);
+      console.error('GraphQL errors:', err.graphQLErrors);
+      console.error('Network error:', err.networkError);
+    },
+    onCompleted: (data) => {
+      console.log('✅ GET_ALL_FEEDBACK completed:', data?.allFeedback?.length, 'items');
+    }
   });
 
-  const { data: statsData, loading: statsLoading } = useQuery(GET_SYSTEM_STATS, {
-    fetchPolicy: 'network-only'
+  const { data: statsData, loading: statsLoading, error: statsError } = useQuery(GET_SYSTEM_STATS, {
+    fetchPolicy: 'network-only',
+    onError: (err) => {
+      console.error('❌ GET_SYSTEM_STATS Error:', err);
+      console.error('Error message:', err.message);
+      console.error('GraphQL errors:', err.graphQLErrors);
+      console.error('Network error:', err.networkError);
+    },
+    onCompleted: (data) => {
+      console.log('✅ GET_SYSTEM_STATS completed:', data?.systemStats);
+    }
+  });
+
+  const { data: settingsData, loading: settingsLoading } = useQuery(GET_SYSTEM_SETTINGS, {
+    fetchPolicy: 'network-only',
+    onError: (err) => {
+      console.error('❌ GET_SYSTEM_SETTINGS Error:', err);
+    },
+    onCompleted: (data) => {
+      console.log('✅ GET_SYSTEM_SETTINGS completed:', data?.systemSettings);
+    }
+  });
+
+  const [updateSettings, { loading: updatingSettings }] = useMutation(UPDATE_SYSTEM_SETTINGS, {
+    onCompleted: () => {
+      alert('AI Coach settings updated successfully!');
+    },
+    onError: (err) => {
+      console.error('Error updating settings:', err);
+      alert('Failed to update settings: ' + err.message);
+    },
+    refetchQueries: [{ query: GET_SYSTEM_SETTINGS }]
   });
 
   const [updateStatus, { loading: updating }] = useMutation(UPDATE_FEEDBACK_STATUS, {
@@ -82,14 +121,29 @@ const AdminDashboard = () => {
     setNoteText('');
   };
 
+  // Debug logging - log early to see what's happening
+  console.log('📊 Admin Dashboard Render:', {
+    loading,
+    statsLoading,
+    error: error?.message,
+    statsError: statsError?.message,
+    hasData: !!data,
+    hasStatsData: !!statsData,
+    rawData: data,
+    rawStatsData: statsData
+  });
+
   const feedback = data?.allFeedback || [];
   const stats = statsData?.systemStats;
+  const aiCoachEnabled = settingsData?.systemSettings?.aiCoachEnabled ?? true;
 
   const pendingCount = feedback.filter(f => f.status === 'pending').length;
   const reviewedCount = feedback.filter(f => f.status === 'reviewed').length;
   const resolvedCount = feedback.filter(f => f.status === 'resolved').length;
 
-  if (loading || statsLoading) {
+  // Show loading state
+  if (loading || statsLoading || settingsLoading) {
+    console.log('⏳ Loading admin dashboard data...');
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-screen">
@@ -99,32 +153,121 @@ const AdminDashboard = () => {
     );
   }
 
-  if (error) {
+  // Only show full error page if both queries fail
+  if (error && statsError) {
+    console.log('❌ Both queries failed, showing error page');
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
+          <div className="text-center max-w-2xl mx-auto p-6">
             <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Error Loading Dashboard</h2>
-            <p className="text-gray-600 dark:text-gray-400">{error.message}</p>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">Failed to load dashboard data. You may not have admin permissions.</p>
+            <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg text-left space-y-2">
+              <div>
+                <p className="font-semibold text-red-800 dark:text-red-200">Feedback Error:</p>
+                <p className="text-sm text-red-700 dark:text-red-300">{error.message}</p>
+              </div>
+              <div>
+                <p className="font-semibold text-red-800 dark:text-red-200">Stats Error:</p>
+                <p className="text-sm text-red-700 dark:text-red-300">{statsError.message}</p>
+              </div>
+            </div>
+            <button
+              onClick={() => window.location.href = '/dashboard'}
+              className="mt-6 px-6 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700"
+            >
+              Go to Dashboard
+            </button>
           </div>
         </div>
       </Layout>
     );
   }
 
+  console.log('🎨 Rendering Admin Dashboard UI...');
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Error Warnings for Partial Failures */}
+        {statsError && (
+          <div className="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
+              <div>
+                <p className="font-semibold text-yellow-800 dark:text-yellow-200">System Statistics Unavailable</p>
+                <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">{statsError.message}</p>
+              </div>
+            </div>
+          </div>
+        )}
+        {error && (
+          <div className="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
+              <div>
+                <p className="font-semibold text-yellow-800 dark:text-yellow-200">Feedback Data Unavailable</p>
+                <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">{error.message}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <Shield className="w-8 h-8 text-cyan-600" />
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Admin Dashboard</h1>
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <Shield className="w-8 h-8 text-cyan-600" />
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Admin Dashboard</h1>
+              </div>
+              <p className="text-gray-600 dark:text-gray-400">
+                Manage feedback submissions and view system statistics
+              </p>
+            </div>
           </div>
-          <p className="text-gray-600 dark:text-gray-400">
-            Manage feedback submissions and view system statistics
-          </p>
+        </div>
+
+        {/* AI Coach Global Control */}
+        <div className="mb-8 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-xl p-6 border border-purple-200 dark:border-purple-800">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center">
+                <Bot className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">AI Coach System Control</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  {aiCoachEnabled 
+                    ? 'AI Coach is currently enabled for all users' 
+                    : 'AI Coach is currently disabled globally'}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                updateSettings({
+                  variables: { aiCoachEnabled: !aiCoachEnabled }
+                });
+              }}
+              disabled={updatingSettings}
+              className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
+                aiCoachEnabled
+                  ? 'bg-red-500 hover:bg-red-600 text-white'
+                  : 'bg-green-500 hover:bg-green-600 text-white'
+              }`}
+            >
+              <Power className="w-5 h-5" />
+              {updatingSettings ? 'Updating...' : (aiCoachEnabled ? 'Disable AI Coach' : 'Enable AI Coach')}
+            </button>
+          </div>
+          <div className="mt-4 p-4 bg-white dark:bg-gray-800 rounded-lg">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              <strong>Note:</strong> This control will override individual user settings when disabled. 
+              Users will not be able to access AI Coach features when globally disabled.
+            </p>
+          </div>
         </div>
 
         {/* System Statistics */}

@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from '@apollo/client';
 import { useAuth } from '../contexts/AuthContext';
-import { GET_MY_ACTIVE_CHALLENGES, GET_AI_MESSAGES, GENERATE_AI_COACH_MESSAGE } from '../lib/graphql';
+import { GET_MY_ACTIVE_CHALLENGES, GET_AI_MESSAGES, GENERATE_AI_COACH_MESSAGE, GET_SYSTEM_SETTINGS } from '../lib/graphql';
 import { Target, TrendingUp, Flame, Calendar, Sparkles, Loader2, Mail, Users } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -17,9 +17,17 @@ const Dashboard = () => {
     skip: !user,
     fetchPolicy: 'cache-and-network',
   });
+  
+  // Check if AI Coach is globally enabled
+  const { data: settingsData } = useQuery(GET_SYSTEM_SETTINGS, {
+    fetchPolicy: 'cache-and-network',
+    skip: !user
+  });
+  const aiCoachGloballyEnabled = settingsData?.systemSettings?.aiCoachEnabled ?? true;
+  
   const { data: messagesData, refetch: refetchMessages } = useQuery(GET_AI_MESSAGES, {
     variables: { unreadOnly: false, limit: 5 },
-    skip: !user,
+    skip: !user || !aiCoachGloballyEnabled,
     fetchPolicy: 'cache-and-network',
   });
 
@@ -145,7 +153,7 @@ const Dashboard = () => {
                             {uc.partners.slice(0, 3).map((partner) => (
                               <div
                                 key={partner.id}
-                                className="w-6 h-6 rounded-full bg-indigo-600 border-2 border-white dark:border-gray-800 flex items-center justify-center"
+                                className="w-6 h-6 rounded-full bg-gradient-to-br from-cyan-600 to-teal-600 border-2 border-white dark:border-gray-800 flex items-center justify-center"
                                 title={partner.displayName}
                               >
                                 <span className="text-white text-xs font-semibold">
@@ -187,7 +195,8 @@ const Dashboard = () => {
         )}
       </div>
 
-      {/* AI Coach Messages */}
+      {/* AI Coach Messages - Only show if globally enabled */}
+      {aiCoachGloballyEnabled && (
       <div>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 flex items-center">
@@ -244,13 +253,14 @@ const Dashboard = () => {
             ))
           )}
         </div>
-        </div>
-
-        {/* Partner Activity Feed - Takes 1 column */}
-        <div className="lg:col-span-1">
-          <PartnerActivityFeed />
-        </div>
       </div>
+      )}
+
+      {/* Partner Activity Feed */}
+      <div>
+        <PartnerActivityFeed />
+      </div>
+    </div>
     </>
   );
 };

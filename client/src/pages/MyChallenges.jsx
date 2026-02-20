@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from '@apollo/client';
-import { GET_MY_ACTIVE_CHALLENGES, CHECK_IN, RENAME_CHALLENGE, EXIT_CHALLENGE, INVITE_EMAIL_TO_CHALLENGE } from '../lib/graphql';
+import { GET_MY_ACTIVE_CHALLENGES, CHECK_IN, RENAME_CHALLENGE, EXIT_CHALLENGE, INVITE_EMAIL_TO_USER_CHALLENGE } from '../lib/graphql';
 import { Flame, CheckCircle, Calendar, Users, Loader2, Edit2, LogOut, Mail, MoreVertical, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -10,10 +10,8 @@ const MyChallenges = () => {
     fetchPolicy: 'cache-and-network',
   });
   const [checkingIn, setCheckingIn] = useState(null);
-  const [selectedTask, setSelectedTask] = useState(null);
   const [checkInNote, setCheckInNote] = useState('');
-  const [showNoteModal, setShowNoteModal] = useState(null);
-  const [showTaskModal, setShowTaskModal] = useState(null);
+  const [expandedTask, setExpandedTask] = useState(null); // Format: "userChallengeId-taskId"
   const [showMenu, setShowMenu] = useState(null);
   const [showRenameModal, setShowRenameModal] = useState(null);
   const [newChallengeName, setNewChallengeName] = useState('');
@@ -27,15 +25,13 @@ const MyChallenges = () => {
     onCompleted: () => {
       refetch();
       setCheckingIn(null);
-      setSelectedTask(null);
-      setShowTaskModal(null);
-      setShowNoteModal(null);
+      setExpandedTask(null);
       setCheckInNote('');
+      alert('✅ Check-in completed successfully!');
     },
     onError: (error) => {
-      alert(error.message);
+      alert('❌ ' + error.message);
       setCheckingIn(null);
-      setSelectedTask(null);
     }
   });
 
@@ -63,12 +59,12 @@ const MyChallenges = () => {
     }
   });
 
-  const [inviteMutation] = useMutation(INVITE_EMAIL_TO_CHALLENGE, {
+  const [inviteMutation] = useMutation(INVITE_EMAIL_TO_USER_CHALLENGE, {
     onCompleted: () => {
       setShowInviteModal(null);
       setInviteEmail('');
       setInviteMessage('');
-      alert('Invitation sent successfully!');
+      alert('✅ Invitation sent! They will join your specific challenge instance and become your friend.');
     },
     onError: (error) => {
       alert(error.message);
@@ -90,8 +86,15 @@ const MyChallenges = () => {
     });
   };
 
-  const openTaskSelector = (userChallengeId, tasks) => {
-    setShowTaskModal({ userChallengeId, tasks });
+  const toggleTaskExpand = (userChallengeId, taskId) => {
+    const key = `${userChallengeId}-${taskId}`;
+    if (expandedTask === key) {
+      setExpandedTask(null);
+      setCheckInNote('');
+    } else {
+      setExpandedTask(key);
+      setCheckInNote('');
+    }
   };
 
   const handleRename = async (challengeId) => {
@@ -119,14 +122,14 @@ const MyChallenges = () => {
     });
   };
 
-  const handleInvite = async (challengeId) => {
+  const handleInvite = async (userChallengeId) => {
     if (!inviteEmail.trim()) {
       alert('Please enter an email address');
       return;
     }
     await inviteMutation({
       variables: {
-        challengeId,
+        userChallengeId, // Pass instance ID
         email: inviteEmail.trim(),
         message: inviteMessage.trim() || null
       }
@@ -149,7 +152,7 @@ const MyChallenges = () => {
         <h1 className="text-3xl font-bold text-gray-900">My Challenges</h1>
         <a
           href="/browse"
-          className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+          className="px-6 py-3 bg-gradient-to-r from-cyan-600 to-teal-600 text-white rounded-lg hover:from-cyan-700 hover:to-teal-700 transition-all"
         >
           Join New Challenge
         </a>
@@ -162,7 +165,7 @@ const MyChallenges = () => {
           <p className="text-gray-600 mb-6">Join your first challenge and start building better habits!</p>
           <a
             href="/browse"
-            className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-cyan-600 to-teal-600 text-white rounded-lg hover:from-cyan-700 hover:to-teal-700 transition-all"
           >
             Browse Challenges
           </a>
@@ -189,7 +192,7 @@ const MyChallenges = () => {
                   </div>
                   <p className="text-gray-600 text-sm mb-3">{uc.challenge.description}</p>
                   <div className="flex flex-wrap gap-2">
-                    <span className="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full font-medium">
+                    <span className="px-3 py-1 bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400 text-xs rounded-full font-medium">
                       {uc.challenge.category}
                     </span>
                     <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full font-medium">
@@ -291,75 +294,181 @@ const MyChallenges = () => {
                 </div>
               </div>
 
-              {/* Participants - Show total users in challenge */}
+              {/* Participants - Show all users in this challenge instance */}
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center">
-                    <Users className="w-4 h-4 text-gray-600 mr-2" />
-                    <span className="text-sm font-medium text-gray-700">Participants</span>
+                    <Users className="w-4 h-4 text-gray-600 dark:text-gray-400 mr-2" />
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Challenge Participants</span>
                   </div>
-                  <span className="text-xs text-gray-500">
-                    {uc.challenge.stats?.activeUsers || 0} active
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {uc.allParticipants?.length || 0} {uc.allParticipants?.length === 1 ? 'person' : 'people'}
                   </span>
                 </div>
-                <div className="flex items-center space-x-2">
-                  {uc.partners && uc.partners.length > 0 && (
-                    <div className="flex -space-x-2">
-                      {uc.partners.slice(0, 5).map((partner) => (
-                        <div
-                          key={partner.id}
-                          className="w-8 h-8 rounded-full bg-indigo-600 border-2 border-white flex items-center justify-center"
-                          title={partner.displayName}
-                        >
-                          <span className="text-white text-xs font-semibold">
-                            {partner.displayName.charAt(0).toUpperCase()}
-                          </span>
+                
+                {/* Participants List */}
+                {uc.allParticipants && uc.allParticipants.length > 0 ? (
+                  <div className="space-y-2">
+                    {uc.allParticipants.slice(0, 5).map((participant) => (
+                      <div
+                        key={participant.user.id}
+                        className={`flex items-center justify-between p-2 rounded-lg ${
+                          participant.isYou 
+                            ? 'bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-800' 
+                            : 'bg-gray-50 dark:bg-gray-800/50'
+                        }`}
+                      >
+                        <div className="flex items-center space-x-2 min-w-0 flex-1">
+                          {/* Avatar */}
+                          {participant.user.profilePhoto ? (
+                            <img
+                              src={participant.user.profilePhoto}
+                              alt={participant.user.displayName}
+                              className="w-8 h-8 rounded-full flex-shrink-0"
+                            />
+                          ) : (
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center flex-shrink-0">
+                              <span className="text-white text-xs font-semibold">
+                                {participant.user.displayName.charAt(0).toUpperCase()}
+                              </span>
+                            </div>
+                          )}
+                          
+                          {/* Name */}
+                          <div className="min-w-0 flex-1">
+                            <p className={`text-sm font-medium truncate ${
+                              participant.isYou 
+                                ? 'text-cyan-900 dark:text-cyan-100' 
+                                : 'text-gray-900 dark:text-gray-100'
+                            }`}>
+                              {participant.user.displayName}
+                              {participant.isYou && (
+                                <span className="ml-1 text-xs text-cyan-600 dark:text-cyan-400">(You)</span>
+                              )}
+                            </p>
+                          </div>
                         </div>
-                      ))}
-                      {uc.partners.length > 5 && (
-                        <div
-                          className="w-8 h-8 rounded-full bg-gray-400 border-2 border-white flex items-center justify-center"
-                          title={`+${uc.partners.length - 5} more`}
-                        >
-                          <span className="text-white text-xs font-semibold">
-                            +{uc.partners.length - 5}
-                          </span>
+                        
+                        {/* Stats */}
+                        <div className="flex items-center space-x-3 text-xs ml-2">
+                          <div className="flex items-center text-orange-600 dark:text-orange-400" title="Current Streak">
+                            <Flame className="w-3 h-3 mr-1" />
+                            <span className="font-semibold">{participant.currentStreak}</span>
+                          </div>
+                          <div className="text-gray-600 dark:text-gray-400" title="Check-ins">
+                            <span className="font-medium">{participant.totalCheckIns}</span>
+                          </div>
                         </div>
-                      )}
-                    </div>
-                  )}
-                  {(!uc.partners || uc.partners.length === 0) && (
-                    <span className="text-xs text-gray-500">Solo challenge</span>
-                  )}
-                </div>
+                      </div>
+                    ))}
+                    
+                    {/* Show more indicator */}
+                    {uc.allParticipants.length > 5 && (
+                      <div className="text-center">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          +{uc.allParticipants.length - 5} more {uc.allParticipants.length - 5 === 1 ? 'participant' : 'participants'}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Solo challenge</span>
+                  </div>
+                )}
               </div>
 
-              {/* Tasks Section with Progress */}
+              {/* Tasks Section with Inline Check-in */}
               {uc.challenge.tasks && uc.challenge.tasks.length > 0 && (
                 <div className="mb-4">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Tasks Progress</h4>
+                  <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Today's Tasks</h4>
                   <div className="space-y-2">
                     {[...uc.challenge.tasks].sort((a, b) => a.order - b.order).map((task) => {
                       const taskProg = uc.taskProgress?.find(tp => tp.taskId === task.id);
                       const isCompleted = taskProg?.completed || false;
                       const completedCount = taskProg?.completedCount || 0;
+                      const taskKey = `${uc.id}-${task.id}`;
+                      const isExpanded = expandedTask === taskKey;
                       
                       return (
-                        <div key={task.id} className="flex items-start space-x-2 text-sm">
-                          <CheckCircle className={`w-4 h-4 mt-0.5 ${isCompleted ? 'text-green-500' : 'text-gray-400'}`} />
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between">
-                              <p className={`font-medium ${isCompleted ? 'text-green-700' : 'text-gray-700'}`}>
-                                {task.title}
-                              </p>
-                              <span className="text-xs text-gray-500">
-                                {completedCount} {completedCount === 1 ? 'time' : 'times'}
-                              </span>
+                        <div key={task.id} className={`border-2 rounded-lg transition-all ${
+                          isCompleted 
+                            ? 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800' 
+                            : isExpanded
+                            ? 'border-cyan-500 bg-cyan-50 dark:bg-cyan-900/20'
+                            : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600 cursor-pointer'
+                        }`}>
+                          <button
+                            onClick={() => !isCompleted && toggleTaskExpand(uc.id, task.id)}
+                            disabled={isCompleted}
+                            className="w-full p-4 text-left"
+                          >
+                            <div className="flex items-start space-x-3">
+                              <CheckCircle className={`w-5 h-5 mt-0.5 flex-shrink-0 ${
+                                isCompleted ? 'text-green-600' : 'text-gray-400'
+                              }`} />
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between gap-2">
+                                  <p className={`font-medium ${
+                                    isCompleted ? 'text-gray-700 dark:text-gray-300' : 'text-gray-900 dark:text-gray-100'
+                                  }`}>
+                                    {task.title}
+                                  </p>
+                                  <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                                    {completedCount} {completedCount === 1 ? 'time' : 'times'}
+                                  </span>
+                                </div>
+                                {task.description && (
+                                  <p className={`text-sm mt-1 ${
+                                    isCompleted ? 'text-gray-600 dark:text-gray-400' : 'text-gray-600 dark:text-gray-400'
+                                  }`}>
+                                    {task.description}
+                                  </p>
+                                )}
+                              </div>
                             </div>
-                            {task.description && (
-                              <p className="text-xs text-gray-500">{task.description}</p>
-                            )}
-                          </div>
+                          </button>
+
+                          {/* Inline Check-in Interface */}
+                          {isExpanded && !isCompleted && (
+                            <div className="px-4 pb-4 space-y-3 border-t border-cyan-200 dark:border-cyan-800 pt-3">
+                              <textarea
+                                value={checkInNote}
+                                onChange={(e) => setCheckInNote(e.target.value)}
+                                placeholder="Add a note about this task... (optional)"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                                rows={2}
+                              />
+                              <div className="flex space-x-2">
+                                <button
+                                  onClick={() => handleCheckIn(uc.id, task.id)}
+                                  disabled={checkingIn === uc.id}
+                                  className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all disabled:opacity-50 flex items-center justify-center space-x-2"
+                                >
+                                  {checkingIn === uc.id ? (
+                                    <>
+                                      <Loader2 className="w-4 h-4 animate-spin" />
+                                      <span>Checking in...</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <CheckCircle className="w-4 h-4" />
+                                      <span>Check In Now</span>
+                                    </>
+                                  )}
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setExpandedTask(null);
+                                    setCheckInNote('');
+                                  }}
+                                  className="px-4 py-2.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-medium"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       );
                     })}
@@ -367,106 +476,11 @@ const MyChallenges = () => {
                 </div>
               )}
 
-              {/* Check-in Button */}
-              {showNoteModal === uc.id ? (
-                <div className="space-y-3">
-                  <textarea
-                    value={checkInNote}
-                    onChange={(e) => setCheckInNote(e.target.value)}
-                    placeholder="Add a note about today's progress... (optional)"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent resize-none"
-                    rows={3}
-                  />
-                  <div className="flex space-x-3">
-                    <button
-                      onClick={() => handleCheckIn(uc.id, selectedTask)}
-                      disabled={checkingIn === uc.id || !selectedTask}
-                      className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold py-3 rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all disabled:opacity-50 flex items-center justify-center space-x-2"
-                    >
-                      {checkingIn === uc.id ? (
-                        <>
-                          <Loader2 className="w-5 h-5 animate-spin" />
-                          <span>Checking in...</span>
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle className="w-5 h-5" />
-                          <span>Complete Check-in</span>
-                        </>
-                      )}
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowNoteModal(null);
-                        setCheckInNote('');
-                        setSelectedTask(null);
-                      }}
-                      className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <button
-                  onClick={() => openTaskSelector(uc.id, uc.challenge.tasks || [])}
-                  className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold py-3 rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all flex items-center justify-center space-x-2"
-                >
-                  <CheckCircle className="w-5 h-5" />
-                  <span>Check In Today</span>
-                </button>
-              )}
             </div>
           ))}
         </div>
       )}
 
-      {/* Task Selection Modal */}
-      {showTaskModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Select a Task to Check In</h3>
-            <div className="space-y-2 mb-6">
-              {showTaskModal.tasks && showTaskModal.tasks.length > 0 ? (
-                [...showTaskModal.tasks].sort((a, b) => a.order - b.order).map((task) => (
-                  <button
-                    key={task.id}
-                    onClick={() => {
-                      setSelectedTask(task.id);
-                      setShowNoteModal(showTaskModal.userChallengeId);
-                      setShowTaskModal(null);
-                    }}
-                    className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
-                      selectedTask === task.id
-                        ? 'border-indigo-600 bg-indigo-50'
-                        : 'border-gray-200 hover:border-indigo-300 hover:bg-gray-50'
-                    }`}
-                  >
-                    <p className="font-semibold text-gray-900">{task.title}</p>
-                    {task.description && (
-                      <p className="text-sm text-gray-600 mt-1">{task.description}</p>
-                    )}
-                  </button>
-                ))
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-gray-600">No tasks available for this challenge.</p>
-                  <p className="text-sm text-gray-500 mt-2">You can still complete the challenge without tasks.</p>
-                </div>
-              )}
-            </div>
-            <button
-              onClick={() => {
-                setShowTaskModal(null);
-                setSelectedTask(null);
-              }}
-              className="w-full px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Rename Modal */}
       {showRenameModal && (
@@ -486,7 +500,7 @@ const MyChallenges = () => {
                   const challenge = activeChallenges.find(c => c.id === showRenameModal);
                   handleRename(challenge.challenge.id);
                 }}
-                className="flex-1 bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 transition-colors"
+                className="flex-1 bg-gradient-to-r from-cyan-600 to-teal-600 text-white font-semibold py-3 rounded-lg hover:from-cyan-700 hover:to-teal-700 transition-all"
               >
                 Rename
               </button>
@@ -561,9 +575,9 @@ const MyChallenges = () => {
               <button
                 onClick={() => {
                   const challenge = activeChallenges.find(c => c.id === showInviteModal);
-                  handleInvite(challenge.challenge.id);
+                  handleInvite(challenge.id); // Pass userChallenge instance ID
                 }}
-                className="flex-1 bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 transition-colors"
+                className="flex-1 bg-gradient-to-r from-cyan-600 to-teal-600 text-white font-semibold py-3 rounded-lg hover:from-cyan-700 hover:to-teal-700 transition-all"
               >
                 Send Invitation
               </button>

@@ -8,7 +8,11 @@ import {
   AIMessage,
   Notification,
   AIInsight,
-  ChallengeRecommendation
+  ChallengeRecommendation,
+  TaskProgress,
+  UserChallengeParticipant,
+  FeatureRequest,
+  FriendActivity
 } from './types.js';
 
 /**
@@ -24,7 +28,11 @@ export const resolvers = {
   AIMessage,
   Notification,
   AIInsight,
-  ChallengeRecommendation
+  ChallengeRecommendation,
+  TaskProgress,
+  UserChallengeParticipant,
+  FeatureRequest,
+  FriendActivity
 };
 
 export default resolvers;

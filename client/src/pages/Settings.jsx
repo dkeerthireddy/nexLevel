@@ -2,15 +2,13 @@ import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { useMutation } from '@apollo/client';
-import { UPDATE_SETTINGS, UPDATE_EMAIL_CONFIG, ENABLE_TWO_FACTOR, VERIFY_TWO_FACTOR, DISABLE_TWO_FACTOR, REQUEST_PASSWORD_CHANGE, CHANGE_PASSWORD } from '../lib/graphql';
-import { Bell, BellOff, Bot, Camera, FileText, Clock, Save, Loader2, Mail, Shield, Key, Copy, CheckCircle, Moon, Sun, Lock } from 'lucide-react';
+import { UPDATE_SETTINGS, ENABLE_TWO_FACTOR, VERIFY_TWO_FACTOR, DISABLE_TWO_FACTOR, REQUEST_PASSWORD_CHANGE, CHANGE_PASSWORD } from '../lib/graphql';
+import { Bell, BellOff, Bot, Camera, FileText, Clock, Save, Loader2, Shield, Key, Copy, CheckCircle, Moon, Sun, Lock } from 'lucide-react';
 
 const Settings = () => {
   const { user, refetchUser } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [saving, setSaving] = useState(false);
-  const [savingEmail, setSavingEmail] = useState(false);
-  const [showEmailPassword, setShowEmailPassword] = useState(false);
   
   // 2FA state
   const [show2FASetup, setShow2FASetup] = useState(false);
@@ -47,12 +45,6 @@ const Settings = () => {
       weeklyReports: user?.settings?.ai?.weeklyReports ?? true
     }
   });
-  
-  const [emailConfig, setEmailConfig] = useState({
-    gmailUser: user?.emailConfig?.gmailUser || '',
-    gmailAppPassword: '',
-    enabled: user?.emailConfig?.enabled ?? false
-  });
 
   const [updateSettings] = useMutation(UPDATE_SETTINGS, {
     onCompleted: () => {
@@ -63,19 +55,6 @@ const Settings = () => {
     onError: (error) => {
       setSaving(false);
       alert('Failed to save settings: ' + error.message);
-    }
-  });
-
-  const [updateEmailConfig] = useMutation(UPDATE_EMAIL_CONFIG, {
-    onCompleted: () => {
-      setSavingEmail(false);
-      refetchUser();
-      alert('Email configuration saved successfully!');
-      setShowEmailPassword(false);
-    },
-    onError: (error) => {
-      setSavingEmail(false);
-      alert('Failed to save email config: ' + error.message);
     }
   });
 
@@ -143,21 +122,6 @@ const Settings = () => {
     setSaving(true);
     await updateSettings({
       variables: { settings }
-    });
-  };
-
-  const handleSaveEmail = async () => {
-    if (!emailConfig.gmailUser || !emailConfig.gmailAppPassword) {
-      alert('Please fill in both Gmail address and App Password');
-      return;
-    }
-    setSavingEmail(true);
-    await updateEmailConfig({
-      variables: {
-        gmailUser: emailConfig.gmailUser,
-        gmailAppPassword: emailConfig.gmailAppPassword,
-        enabled: emailConfig.enabled
-      }
     });
   };
 
@@ -475,102 +439,6 @@ const Settings = () => {
               className="w-5 h-5 text-cyan-600 rounded focus:ring-cyan-500"
             />
           </label>
-        </div>
-      </div>
-
-      {/* Email Configuration */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="flex items-center mb-6">
-          <Mail className="w-6 h-6 text-blue-600 mr-3" />
-          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Email Notifications (Gmail)</h2>
-        </div>
-
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-          <p className="text-sm text-blue-800 mb-2">
-            <strong>📧 Configure your Gmail to send email notifications</strong>
-          </p>
-          <p className="text-sm text-blue-700">
-            You need to create a Gmail App Password. Go to your Google Account → Security → 2-Step Verification → App Passwords. 
-            <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener noreferrer" className="underline ml-1">
-              Create App Password →
-            </a>
-          </p>
-        </div>
-
-        <div className="space-y-4">
-          {/* Enable Email Notifications */}
-          <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-            <div>
-              <p className="font-medium text-gray-900 dark:text-gray-100">Enable Email Notifications</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Send emails for invites, check-ins, and updates</p>
-            </div>
-            <button
-              onClick={() => setEmailConfig(prev => ({ ...prev, enabled: !prev.enabled }))}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                emailConfig.enabled ? 'bg-blue-600' : 'bg-gray-300'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  emailConfig.enabled ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </button>
-          </div>
-
-          {/* Gmail Address */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Gmail Address
-            </label>
-            <input
-              type="email"
-              placeholder="your-email@gmail.com"
-              value={emailConfig.gmailUser}
-              onChange={(e) => setEmailConfig(prev => ({ ...prev, gmailUser: e.target.value }))}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-
-          {/* Gmail App Password */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Gmail App Password
-            </label>
-            <input
-              type={showEmailPassword ? "text" : "password"}
-              placeholder="16-character app password"
-              value={emailConfig.gmailAppPassword}
-              onChange={(e) => setEmailConfig(prev => ({ ...prev, gmailAppPassword: e.target.value }))}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            <button
-              type="button"
-              onClick={() => setShowEmailPassword(!showEmailPassword)}
-              className="text-sm text-blue-600 hover:text-blue-700 mt-1"
-            >
-              {showEmailPassword ? 'Hide' : 'Show'} password
-            </button>
-          </div>
-
-          {/* Save Email Config Button */}
-          <button
-            onClick={handleSaveEmail}
-            disabled={savingEmail}
-            className="w-full bg-blue-600 text-white font-semibold px-6 py-3 rounded-lg hover:bg-blue-700 transition-all disabled:opacity-50 flex items-center justify-center space-x-2"
-          >
-            {savingEmail ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                <span>Saving...</span>
-              </>
-            ) : (
-              <>
-                <Save className="w-5 h-5" />
-                <span>Save Email Configuration</span>
-              </>
-            )}
-          </button>
         </div>
       </div>
 

@@ -25,6 +25,7 @@ import VerifyEmail from './pages/VerifyEmail';
 import VerifyEmailCode from './pages/VerifyEmailCode';
 import ChallengeDetail from './pages/ChallengeDetail';
 import AdminDashboard from './pages/AdminDashboard';
+import JoinInstance from './pages/JoinInstance';
 
 // Layout
 import Layout from './components/common/Layout';
@@ -64,9 +65,10 @@ function App() {
               </Route>
 
               {/* Admin routes */}
-              <Route element={<AdminRoute><Layout /></AdminRoute>}>
-                <Route path="/admin" element={<AdminDashboard />} />
-              </Route>
+              <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+
+              {/* Join challenge instance from email invitation */}
+              <Route path="/join-instance/:userChallengeId" element={<ProtectedRoute><JoinInstance /></ProtectedRoute>} />
 
               {/* Redirect unknown routes to landing */}
               <Route path="*" element={<Navigate to="/" replace />} />

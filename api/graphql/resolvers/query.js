@@ -381,9 +381,11 @@ export const Query = {
 
     // Construct friend activity from check-ins
     const friendActivity = newCheckIns.map(ci => ({
+      id: ci._id?.toString() || `activity_${ci.timestamp}`,
       user: ci.user[0],
       action: 'completed_checkin',
       challenge: ci.challenge[0],
+      message: ci.user[0] ? `${ci.user[0].displayName} completed a check-in` : 'Someone completed a check-in',
       timestamp: ci.timestamp
     }));
 
@@ -453,14 +455,16 @@ export const Query = {
       .limit(limit)
       .toArray();
 
-    // Map _id to id for GraphQL
+    // Map _id to id and convert dates to ISO strings for GraphQL
     return feedback.map(item => ({
       ...item,
-      id: item._id.toString()
+      id: item._id.toString(),
+      createdAt: item.createdAt ? item.createdAt.toISOString() : null,
+      updatedAt: item.updatedAt ? item.updatedAt.toISOString() : null
     }));
   },
 
-  systemStats: async (_, { limit, offset }, { db, user }) => {
+  systemStats: async (_, __, { db, user }) => {
     if (!user) {
       throw new Error('Not authenticated');
     }
@@ -587,6 +591,25 @@ export const Query = {
       .find({ userId: user._id })
       .sort({ achievementDate: -1 })
       .toArray();
+  },
+
+  systemSettings: async (_, __, { db }) => {
+    const settings = await db.collection('systemSettings').findOne({ key: 'global' });
+    
+    if (!settings) {
+      // Return defaults if not set
+      return {
+        aiCoachEnabled: true,
+        updatedAt: new Date().toISOString(),
+        updatedBy: null
+      };
+    }
+    
+    return {
+      aiCoachEnabled: settings.aiCoachEnabled,
+      updatedAt: settings.updatedAt.toISOString(),
+      updatedBy: settings.updatedBy ? settings.updatedBy.toString() : null
+    };
   },
 
   // Environment Check (for debugging)

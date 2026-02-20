@@ -35,12 +35,6 @@ export async function sendTaskCompletionNotificationToFriends(db, userId, userCh
         continue;
       }
 
-      // Check if partner has email configured
-      if (!partner.emailConfig?.enabled) {
-        console.log(`Partner ${partner.displayName} has not configured email`);
-        continue;
-      }
-
       // Create notification object
       const notification = {
         userId: partnerId,
@@ -57,14 +51,12 @@ export async function sendTaskCompletionNotificationToFriends(db, userId, userCh
       // Save notification to database
       await db.collection('notifications').insertOne(notification);
 
-      // Send email notification
+      // Send email notification using admin email
       try {
         await sendNotificationEmail(
           partner.email,
           partner.displayName,
-          notification,
-          partner.emailConfig,
-          partnerId
+          notification
         );
         console.log(`✅ Task completion email sent to ${partner.displayName} (${partner.email})`);
       } catch (emailError) {
@@ -108,10 +100,6 @@ export async function sendTaskReminderToFriends(db, userId, userChallengeId, pen
         continue;
       }
 
-      if (!partner.emailConfig?.enabled) {
-        continue;
-      }
-
       // Create reminder notification
       const taskList = pendingTasks.map(t => `• ${t.title}`).join('\n');
       const notification = {
@@ -127,13 +115,12 @@ export async function sendTaskReminderToFriends(db, userId, userChallengeId, pen
 
       await db.collection('notifications').insertOne(notification);
 
+      // Send email notification using admin email
       try {
         await sendNotificationEmail(
           partner.email,
           partner.displayName,
-          notification,
-          partner.emailConfig,
-          partnerId
+          notification
         );
         console.log(`✅ Task reminder email sent to ${partner.displayName}`);
       } catch (emailError) {

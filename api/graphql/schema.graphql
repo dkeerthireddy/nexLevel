@@ -140,10 +140,23 @@ type UserChallenge {
   # Friends in this challenge (new feature)
   friendsParticipating: [User!]!
   
+  # All participants in this specific challenge instance
+  allParticipants: [UserChallengeParticipant!]!
+  
   startDate: String!
   endDate: String!
   notificationTime: String!
   reminderEnabled: Boolean!
+}
+
+# Participant in a challenge instance with their progress
+type UserChallengeParticipant {
+  user: User!
+  currentStreak: Int!
+  totalCheckIns: Int!
+  completionRate: Float!
+  lastCheckInAt: String
+  isYou: Boolean!
 }
 
 # CheckIn Types
@@ -256,6 +269,12 @@ type SystemStats {
   totalCheckIns: Int!
   activeUsers: Int!
   activeChallenges: Int!
+}
+
+type SystemSettings {
+  aiCoachEnabled: Boolean!
+  updatedAt: String!
+  updatedBy: ID
 }
 
 type LeaderboardEntry {
@@ -385,6 +404,7 @@ type Query {
   allUsers(limit: Int, offset: Int): [User!]!
   systemStats: SystemStats!
   allFeedback(status: String, limit: Int, offset: Int): [Feedback!]!
+  systemSettings: SystemSettings!
   
   # Debugging (for checking environment variables)
   checkEnv: String!
@@ -447,6 +467,10 @@ type Mutation {
     partnerIds: [ID!]
   ): UserChallenge!
   
+  joinUserChallengeInstance(
+    userChallengeId: ID!
+  ): UserChallenge!
+  
   leaveChallenge(userChallengeId: ID!): Boolean!
   
   # Task Progress
@@ -476,12 +500,13 @@ type Mutation {
   likeMessage(id: ID!, liked: Boolean!): AIMessage!
   
   # Social
-  sendFriendRequest(userId: ID!): FriendRequest!
-  acceptFriendRequest(requestId: ID!): Boolean!
+  sendFriendRequest(userId: ID!): Boolean!
+  acceptFriendRequest(userId: ID!): Boolean!
   rejectFriendRequest(requestId: ID!): Boolean!
   removeFriend(userId: ID!): Boolean!
   inviteFriendToChallenge(friendId: ID!, challengeId: ID!): Boolean!
   inviteEmailToChallenge(email: String!, challengeId: ID!, message: String): Boolean!
+  inviteEmailToUserChallenge(email: String!, userChallengeId: ID!, message: String): Boolean!
   shareProgressWithFriend(friendId: ID!, userChallengeId: ID!): Boolean!
   
   # Challenge Management
@@ -500,6 +525,7 @@ type Mutation {
   updateFeatureRequestStatus(requestId: ID!, status: String!, adminNote: String): FeatureRequest!
   updateFeedbackStatus(feedbackId: ID!, status: String!): Feedback!
   addFeedbackNote(feedbackId: ID!, note: String!): Feedback!
+  updateSystemSettings(aiCoachEnabled: Boolean!): SystemSettings!
   
   # Certificates
   generateCertificate(userChallengeId: ID!): Certificate!

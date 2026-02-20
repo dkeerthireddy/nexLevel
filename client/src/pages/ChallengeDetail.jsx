@@ -207,7 +207,7 @@ const ChallengeDetail = () => {
               <div className="space-y-3">
                 {uc.partners.map((partner) => (
                   <div key={partner.id} className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-600 to-teal-600 flex items-center justify-center">
                       <span className="text-white font-semibold">
                         {partner.displayName.charAt(0).toUpperCase()}
                       </span>

@@ -63,9 +63,9 @@ export async function sendDailyMotivation(db, userId) {
     console.log(`✅ Daily motivation sent to ${user.email}`);
     
     // Send email notification if enabled
-    if (user.settings?.notifications?.enabled && user.settings?.notifications?.types?.dailyReminder && user?.emailConfig?.enabled) {
+    if (user.settings?.notifications?.enabled && user.settings?.notifications?.types?.dailyReminder) {
       try {
-        await sendNotificationEmail(user.email, user.displayName, notification, user.emailConfig, user._id);
+        await sendNotificationEmail(user.email, user.displayName, notification);
       } catch (error) {
         console.error('Failed to send daily motivation email:', error.message);
       }
@@ -106,9 +106,9 @@ export async function sendFriendProgressNotification(db, userId, friendId, chall
     console.log(`✅ Friend progress notification sent to ${user.email}`);
     
     // Send email notification if enabled
-    if (user.settings?.notifications?.enabled && user.settings?.notifications?.types?.partnerComplete && user?.emailConfig?.enabled) {
+    if (user.settings?.notifications?.enabled && user.settings?.notifications?.types?.partnerComplete) {
       try {
-        await sendNotificationEmail(user.email, user.displayName, notification, user.emailConfig, user._id);
+        await sendNotificationEmail(user.email, user.displayName, notification);
       } catch (error) {
         console.error('Failed to send friend progress email:', error.message);
       }
@@ -211,9 +211,9 @@ export async function sendFriendSuggestionNotification(db, userId) {
     console.log(`✅ Friend suggestion sent to ${user.email}`);
     
     // Send email notification if enabled
-    if (user.settings?.notifications?.enabled && user?.emailConfig?.enabled) {
+    if (user.settings?.notifications?.enabled) {
       try {
-        await sendNotificationEmail(user.email, user.displayName, notification, user.emailConfig, user._id);
+        await sendNotificationEmail(user.email, user.displayName, notification);
       } catch (error) {
         console.error('Failed to send friend suggestion email:', error.message);
       }
@@ -289,9 +289,9 @@ export async function sendChallengeSuggestionNotification(db, userId) {
     console.log(`✅ Challenge suggestion sent to ${user.email}`);
     
     // Send email notification if enabled
-    if (user.settings?.notifications?.enabled && user.settings?.ai?.recommendations && user?.emailConfig?.enabled) {
+    if (user.settings?.notifications?.enabled && user.settings?.ai?.recommendations) {
       try {
-        await sendNotificationEmail(user.email, user.displayName, notification, user.emailConfig, user._id);
+        await sendNotificationEmail(user.email, user.displayName, notification);
       } catch (error) {
         console.error('Failed to send challenge suggestion email:', error.message);
       }
@@ -339,9 +339,9 @@ export async function sendStreakMilestoneNotification(db, userId, userChallengeI
     console.log(`✅ Streak milestone notification sent to ${user.email}`);
     
     // Send email notification if enabled
-    if (user.settings?.notifications?.enabled && user.settings?.notifications?.types?.streakMilestone && user?.emailConfig?.enabled) {
+    if (user.settings?.notifications?.enabled && user.settings?.notifications?.types?.streakMilestone) {
       try {
-        await sendNotificationEmail(user.email, user.displayName, notification, user.emailConfig, user._id);
+        await sendNotificationEmail(user.email, user.displayName, notification);
       } catch (error) {
         console.error('Failed to send streak milestone email:', error.message);
       }

@@ -175,7 +175,15 @@ export const Mutation = {
 
       console.log('✅ New user signed up (pending verification):', email);
 
-      return { token, user };
+      // Transform _id to id for GraphQL compatibility
+      return { 
+        token, 
+        user: {
+          ...user,
+          id: user._id.toString(),
+          _id: user._id
+        }
+      };
     } catch (error) {
       console.error('Signup error:', error.message);
       throw error;
@@ -256,7 +264,15 @@ export const Mutation = {
 
       console.log('✅ User logged in:', email);
 
-      return { token, user };
+      // Transform _id to id for GraphQL compatibility
+      return { 
+        token, 
+        user: {
+          ...user,
+          id: user._id.toString(),
+          _id: user._id
+        }
+      };
     } catch (error) {
       console.error('Login error:', error.message);
       throw error;
@@ -818,17 +834,17 @@ export const Mutation = {
       throw new Error('Challenge not found');
     }
 
-    // Check if already joined
-    const existing = await db.collection('userChallenges').findOne({
+    // Check if user already has an active instance of this challenge
+    const existingActiveChallenge = await db.collection('userChallenges').findOne({
       userId: user._id,
       challengeId: new ObjectId(challengeId),
       status: 'active'
     });
 
-    if (existing) {
-      throw new Error('Already joined this challenge');
+    if (existingActiveChallenge) {
+      throw new Error('You already have an active instance of this challenge. Complete or exit the current one before joining again.');
     }
-
+    
     const startDate = new Date();
     const endDate = new Date();
     endDate.setDate(endDate.getDate() + challenge.duration);
@@ -924,6 +940,65 @@ export const Mutation = {
   },
 
   // ============================================================
+  // TASK PROGRESS MANAGEMENT
+  // ============================================================
+  
+  updateTaskProgress: async (_, { userChallengeId, taskId, completed }, { db, user }) => {
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+
+    const userChallenge = await db.collection('userChallenges').findOne({ 
+      _id: new ObjectId(userChallengeId) 
+    });
+
+    if (!userChallenge) {
+      throw new Error('User challenge not found');
+    }
+
+    if (!userChallenge.userId.equals(user._id)) {
+      throw new Error('Not authorized');
+    }
+
+    // Get the challenge to validate the task
+    const challenge = await db.collection('challenges').findOne({ 
+      _id: userChallenge.challengeId 
+    });
+
+    if (!challenge || !challenge.tasks) {
+      throw new Error('Challenge not found');
+    }
+
+    // Validate that the task exists in this challenge
+    const task = challenge.tasks.find(t => t.id === taskId);
+    if (!task) {
+      throw new Error('Task not found in this challenge');
+    }
+
+    // Get all check-ins for this task
+    const checkIns = await db.collection('checkIns')
+      .find({ 
+        userChallengeId: new ObjectId(userChallengeId),
+        taskId: taskId 
+      })
+      .toArray();
+
+    const lastCheckIn = checkIns.length > 0 
+      ? checkIns.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0]
+      : null;
+
+    console.log('✅ Task progress updated:', task.title);
+
+    return {
+      taskId: taskId,
+      task: task,
+      completed: checkIns.length > 0,
+      completedAt: lastCheckIn ? lastCheckIn.timestamp : null,
+      completedCount: checkIns.length
+    };
+  },
+
+  // ============================================================
   // CHECK-INS (PER TASK)
   // ============================================================
   
@@ -976,8 +1051,11 @@ export const Mutation = {
     let photoUrl = null;
     let aiVerification = null;
 
-    // Upload photo if provided
+    // Photo upload is currently disabled
     if (photoBase64) {
+      console.log('⚠️  Photo upload is currently disabled. Check-in will be saved without photo.');
+      // Optionally, you can uncomment the following to enable photo uploads:
+      /*
       try {
         const cloudinaryResult = await uploadToCloudinary(photoBase64);
         photoUrl = cloudinaryResult.url;
@@ -991,6 +1069,7 @@ export const Mutation = {
         console.error('Photo upload/verification failed:', error.message);
         // Continue without photo
       }
+      */
     }
 
     // Create check-in
@@ -1127,6 +1206,12 @@ export const Mutation = {
       throw new Error('Not authenticated');
     }
 
+    // Check global system setting first
+    const systemSettings = await db.collection('systemSettings').findOne({ key: 'global' });
+    if (systemSettings && systemSettings.aiCoachEnabled === false) {
+      throw new Error('AI Coach is currently disabled by system administrators');
+    }
+
     if (!user.settings?.ai?.coachEnabled) {
       throw new Error('AI coach is disabled in settings');
     }
@@ -1183,6 +1268,12 @@ export const Mutation = {
   generateWeeklyReport: async (_, __, { db, user }) => {
     if (!user) {
       throw new Error('Not authenticated');
+    }
+
+    // Check global system setting first
+    const systemSettings = await db.collection('systemSettings').findOne({ key: 'global' });
+    if (systemSettings && systemSettings.aiCoachEnabled === false) {
+      throw new Error('AI Coach is currently disabled by system administrators');
     }
 
     if (!user.settings?.ai?.weeklyReports) {
@@ -1279,6 +1370,17 @@ export const Mutation = {
     }
 
     const targetUserId = new ObjectId(userId);
+    
+    // Check if already friends
+    const currentUser = await db.collection('users').findOne({ _id: user._id });
+    if (currentUser.friendIds && currentUser.friendIds.some(id => id.equals(targetUserId))) {
+      throw new Error('Already friends with this user');
+    }
+    
+    // Check if request already sent
+    if (currentUser.friendRequests?.sent && currentUser.friendRequests.sent.some(id => id.equals(targetUserId))) {
+      throw new Error('Friend request already sent');
+    }
 
     // Add to sent requests
     await db.collection('users').updateOne(
@@ -1392,6 +1494,49 @@ export const Mutation = {
     return true;
   },
 
+  // NEW: Invite to specific user challenge instance
+  inviteEmailToUserChallenge: async (_, { email, userChallengeId, message }, { db, user }) => {
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+
+    // Get the user challenge instance
+    const userChallenge = await db.collection('userChallenges').findOne({ 
+      _id: new ObjectId(userChallengeId),
+      userId: user._id 
+    });
+
+    if (!userChallenge) {
+      throw new Error('Challenge instance not found or you do not have access');
+    }
+
+    // Get the base challenge
+    const challenge = await db.collection('challenges').findOne({ _id: userChallenge.challengeId });
+    if (!challenge) {
+      throw new Error('Challenge not found');
+    }
+
+    // Send invitation email using admin email settings
+    try {
+      const { sendUserChallengeInvitationEmailAdmin } = await import('../../lib/email.js');
+      await sendUserChallengeInvitationEmailAdmin(
+        email,
+        user.displayName,
+        challenge.name,
+        challenge.description,
+        userChallengeId,
+        message || ''
+      );
+
+      console.log(`✅ User challenge invitation sent to ${email} for instance ${userChallengeId}`);
+      return true;
+    } catch (error) {
+      console.error('Error sending user challenge invitation email:', error);
+      throw new Error('Failed to send invitation email');
+    }
+  },
+
+  // OLD: Invite to base challenge (keep for backward compatibility)
   inviteEmailToChallenge: async (_, { email, challengeId, message }, { db, user }) => {
     if (!user) {
       throw new Error('Not authenticated');
@@ -1415,6 +1560,7 @@ export const Mutation = {
         user.displayName,
         challenge.name,
         challenge.description,
+        challengeId,
         message || ''
       );
 
@@ -1588,9 +1734,7 @@ export const Mutation = {
               partner.displayName,
               challenge.name,
               user.displayName,
-              reason || null,
-              partner.emailConfig,
-              partnerId
+              reason || null
             );
           } catch (error) {
             console.error('Failed to send exit email to partner:', error.message);
@@ -1793,7 +1937,12 @@ export const Mutation = {
 
     console.log('✅ Feature request submitted:', title);
 
-    return { ...featureRequest, _id: result.insertedId };
+    // Return with proper ID mapping for GraphQL
+    return { 
+      ...featureRequest, 
+      _id: result.insertedId,
+      id: result.insertedId.toString()
+    };
   },
 
   voteFeatureRequest: async (_, { requestId }, { db, user }) => {
@@ -1931,13 +2080,15 @@ export const Mutation = {
       { returnDocument: 'after' }
     );
 
-    if (!result.value) {
+    if (!result) {
       throw new Error('Feedback not found');
     }
 
     return {
-      ...result.value,
-      id: result.value._id.toString()
+      ...result,
+      id: result._id.toString(),
+      createdAt: result.createdAt ? result.createdAt.toISOString() : null,
+      updatedAt: result.updatedAt ? result.updatedAt.toISOString() : null
     };
   },
 
@@ -1958,13 +2109,154 @@ export const Mutation = {
       { returnDocument: 'after' }
     );
 
-    if (!result.value) {
+    if (!result) {
       throw new Error('Feedback not found');
     }
 
     return {
-      ...result.value,
-      id: result.value._id.toString()
+      ...result,
+      id: result._id.toString(),
+      createdAt: result.createdAt ? result.createdAt.toISOString() : null,
+      updatedAt: result.updatedAt ? result.updatedAt.toISOString() : null
+    };
+  },
+
+  // ============================================================
+  // SYSTEM SETTINGS (Admin Only)
+  // ============================================================
+
+  updateSystemSettings: async (_, { aiCoachEnabled }, { db, user }) => {
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+
+    // Check if user is admin
+    const adminUser = await db.collection('users').findOne({ _id: user._id });
+    if (adminUser?.role !== 'admin' && !adminUser?.isAdmin) {
+      throw new Error('Admin access required');
+    }
+
+    const updatedAt = new Date();
+
+    await db.collection('systemSettings').updateOne(
+      { key: 'global' },
+      {
+        $set: {
+          aiCoachEnabled,
+          updatedAt,
+          updatedBy: user._id
+        }
+      },
+      { upsert: true }
+    );
+
+    console.log('✅ System settings updated: AI Coach', aiCoachEnabled ? 'enabled' : 'disabled');
+
+    return {
+      aiCoachEnabled,
+      updatedAt: updatedAt.toISOString(),
+      updatedBy: user._id.toString()
+    };
+  },
+
+  // Join a specific user challenge instance (from invitation)
+  joinUserChallengeInstance: async (_, { userChallengeId }, { db, user }) => {
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+
+    // Get the original user challenge instance
+    const originalInstance = await db.collection('userChallenges').findOne({ 
+      _id: new ObjectId(userChallengeId)
+    });
+
+    if (!originalInstance) {
+      throw new Error('Challenge instance not found');
+    }
+
+    // Get the challenge
+    const challenge = await db.collection('challenges').findOne({ _id: originalInstance.challengeId });
+    if (!challenge) {
+      throw new Error('Challenge not found');
+    }
+
+    // Check if user already has an active instance of this exact challenge
+    const existingActiveChallenge = await db.collection('userChallenges').findOne({
+      userId: user._id,
+      challengeId: originalInstance.challengeId,
+      status: 'active'
+    });
+
+    if (existingActiveChallenge) {
+      throw new Error('You already have an active instance of this challenge. Complete or exit the current one before joining again.');
+    }
+
+    const startDate = new Date();
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + challenge.duration);
+
+    // Get the owner of the original instance
+    const originalOwner = await db.collection('users').findOne({ _id: originalInstance.userId });
+
+    // Create new user challenge instance with original owner as partner
+    const newUserChallenge = {
+      userId: user._id,
+      challengeId: originalInstance.challengeId,
+      partners: [originalInstance.userId], // Add original owner as partner
+      currentStreak: 0,
+      longestStreak: 0,
+      totalCheckIns: 0,
+      missedDays: 0,
+      graceSkipsUsed: 0,
+      completionRate: 0,
+      status: 'active',
+      checkIns: [],
+      taskProgress: challenge.tasks?.map(task => ({
+        taskId: task.id,
+        completed: false,
+        completedCount: 0
+      })) || [],
+      startDate,
+      endDate,
+      notificationTime: '09:00',
+      reminderEnabled: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    const result = await db.collection('userChallenges').insertOne(newUserChallenge);
+
+    // Add new user as partner to the original instance
+    await db.collection('userChallenges').updateOne(
+      { _id: originalInstance._id },
+      { $addToSet: { partners: user._id } }
+    );
+
+    // Make them friends automatically
+    await db.collection('users').updateOne(
+      { _id: user._id },
+      { $addToSet: { friends: originalInstance.userId } }
+    );
+
+    await db.collection('users').updateOne(
+      { _id: originalInstance.userId },
+      { $addToSet: { friends: user._id } }
+    );
+
+    console.log(`✅ User ${user._id} joined challenge instance and became friends with ${originalInstance.userId}`);
+
+    // Return the new user challenge
+    return {
+      ...newUserChallenge,
+      id: result.insertedId.toString(),
+      _id: result.insertedId,
+      user,
+      challenge,
+      partners: [originalOwner],
+      checkIns: [],
+      lastCheckIn: null,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString()
     };
   },
 
@@ -1977,8 +2269,12 @@ export const Mutation = {
       throw new Error('Not authenticated');
     }
 
-    const result = await uploadToCloudinary(base64);
-    return result.url;
+    // Photo upload is currently disabled
+    throw new Error('Photo upload feature is currently disabled. Please contact support for more information.');
+    
+    // Uncomment below to enable photo uploads:
+    // const result = await uploadToCloudinary(base64);
+    // return result.url;
   },
 };
 

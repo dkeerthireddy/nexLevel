@@ -67,14 +67,32 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const result = await loginMutation({ variables: { email, password } });
+      
+      // Debug logging
+      console.log('🔍 Login mutation result:', result);
+      
+      // Apollo Client throws errors for GraphQL errors, so if we get here, result.data should exist
+      if (!result || !result.data || !result.data.login) {
+        console.error('❌ Unexpected response structure:', result);
+        throw new Error('Unexpected response from server. Please try again.');
+      }
+      
       const { token, user } = result.data.login;
+      
+      if (!token || !user) {
+        console.error('❌ Missing token or user:', { token: !!token, user: !!user });
+        throw new Error('Incomplete login data. Please try again.');
+      }
+      
       localStorage.setItem('authToken', token);
       localStorage.setItem('user', JSON.stringify(user));
       setUser(user);
       setHasToken(true);
+      console.log('✅ Login successful');
       return { success: true, redirectTo: '/dashboard' };
     } catch (error) {
-      // Extract the actual error message from GraphQL error
+      console.error('❌ Login error:', error);
+      // GraphQL errors are thrown by Apollo Client - extract the message
       const message = error.graphQLErrors?.[0]?.message || error.message || 'Login failed';
       throw new Error(message);
     }
@@ -83,14 +101,32 @@ export const AuthProvider = ({ children }) => {
   const signup = async (email, password, displayName) => {
     try {
       const result = await signupMutation({ variables: { email, password, displayName } });
+      
+      // Debug logging
+      console.log('🔍 Signup mutation result:', result);
+      
+      // Apollo Client throws errors for GraphQL errors, so if we get here, result.data should exist
+      if (!result || !result.data || !result.data.signup) {
+        console.error('❌ Unexpected response structure:', result);
+        throw new Error('Unexpected response from server. Please try again.');
+      }
+      
       const { token, user } = result.data.signup;
+      
+      if (!token || !user) {
+        console.error('❌ Missing token or user:', { token: !!token, user: !!user });
+        throw new Error('Incomplete signup data. Please try again.');
+      }
+      
       localStorage.setItem('authToken', token);
       localStorage.setItem('user', JSON.stringify(user));
       setUser(user);
       setHasToken(true);
+      console.log('✅ Signup successful');
       return { success: true, redirectTo: '/verify-email-code' };
     } catch (error) {
-      // Extract the actual error message from GraphQL error
+      console.error('❌ Signup error:', error);
+      // GraphQL errors are thrown by Apollo Client - extract the message
       const message = error.graphQLErrors?.[0]?.message || error.message || 'Signup failed';
       throw new Error(message);
     }

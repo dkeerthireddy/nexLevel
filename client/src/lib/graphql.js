@@ -198,6 +198,18 @@ export const GET_MY_ACTIVE_CHALLENGES = gql`
         completedAt
         completedCount
       }
+      allParticipants {
+        user {
+          id
+          displayName
+          profilePhoto
+        }
+        currentStreak
+        totalCheckIns
+        completionRate
+        lastCheckInAt
+        isYou
+      }
       lastCheckIn {
         id
         date
@@ -357,6 +369,21 @@ export const GET_FRIENDS = gql`
   }
 `;
 
+export const SEARCH_USERS = gql`
+  query SearchUsers($query: String!) {
+    searchUsers(query: $query) {
+      id
+      displayName
+      email
+      profilePhoto
+      stats {
+        activeChallenges
+        longestStreak
+      }
+    }
+  }
+`;
+
 export const SEND_FRIEND_REQUEST = gql`
   mutation SendFriendRequest($userId: ID!) {
     sendFriendRequest(userId: $userId)
@@ -415,6 +442,12 @@ export const EXIT_CHALLENGE = gql`
 export const INVITE_EMAIL_TO_CHALLENGE = gql`
   mutation InviteEmailToChallenge($email: String!, $challengeId: ID!, $message: String) {
     inviteEmailToChallenge(email: $email, challengeId: $challengeId, message: $message)
+  }
+`;
+
+export const INVITE_EMAIL_TO_USER_CHALLENGE = gql`
+  mutation InviteEmailToUserChallenge($email: String!, $userChallengeId: ID!, $message: String) {
+    inviteEmailToUserChallenge(email: $email, userChallengeId: $userChallengeId, message: $message)
   }
 `;
 
@@ -579,6 +612,26 @@ export const GET_SYSTEM_STATS = gql`
       totalCheckIns
       activeUsers
       activeChallenges
+    }
+  }
+`;
+
+export const GET_SYSTEM_SETTINGS = gql`
+  query GetSystemSettings {
+    systemSettings {
+      aiCoachEnabled
+      updatedAt
+      updatedBy
+    }
+  }
+`;
+
+export const UPDATE_SYSTEM_SETTINGS = gql`
+  mutation UpdateSystemSettings($aiCoachEnabled: Boolean!) {
+    updateSystemSettings(aiCoachEnabled: $aiCoachEnabled) {
+      aiCoachEnabled
+      updatedAt
+      updatedBy
     }
   }
 `;

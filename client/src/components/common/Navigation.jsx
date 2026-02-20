@@ -3,7 +3,7 @@ import { Home, Target, Compass, TrendingUp, User, LogOut, Plus, Bot, Bell, Moon,
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useQuery } from '@apollo/client';
-import { GET_NOTIFICATIONS } from '../../lib/graphql';
+import { GET_NOTIFICATIONS, GET_SYSTEM_SETTINGS } from '../../lib/graphql';
 import { useState, useRef, useEffect } from 'react';
 import Logo from './Logo';
 
@@ -14,7 +14,17 @@ const Navigation = () => {
   const { theme, toggleTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
+  const [mobileUserDropdownOpen, setMobileUserDropdownOpen] = useState(false);
+  const desktopDropdownRef = useRef(null);
+  const mobileDropdownRef = useRef(null);
+  
+  // Fetch system settings to check if AI Coach is globally enabled
+  const { data: settingsData } = useQuery(GET_SYSTEM_SETTINGS, {
+    fetchPolicy: 'cache-and-network',
+    skip: !user
+  });
+  
+  const aiCoachGloballyEnabled = settingsData?.systemSettings?.aiCoachEnabled ?? true;
 
   const handleLogout = () => {
     const result = logout();
@@ -23,19 +33,39 @@ const Navigation = () => {
     }
   };
 
-  // Close dropdown when clicking outside
+  // Close desktop dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (desktopDropdownRef.current && !desktopDropdownRef.current.contains(event.target)) {
         setUserDropdownOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    if (userDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [userDropdownOpen]);
+
+  // Close mobile dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (mobileDropdownRef.current && !mobileDropdownRef.current.contains(event.target)) {
+        setMobileUserDropdownOpen(false);
+      }
+    };
+
+    if (mobileUserDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [mobileUserDropdownOpen]);
 
   // Only fetch notifications if user is authenticated
   const { data: notificationsData } = useQuery(GET_NOTIFICATIONS, {
@@ -49,14 +79,23 @@ const Navigation = () => {
 
   const isAdmin = user?.role === 'admin' || user?.isAdmin;
 
-  const navItems = [
+  // Filter nav items - hide AI Coach if globally disabled
+  const allNavItems = [
     { path: '/dashboard', label: 'Dashboard', icon: Home },
     { path: '/challenges', label: 'My Challenges', icon: Target },
     { path: '/browse', label: 'Browse', icon: Compass },
-    { path: '/ai-coach', label: 'AI Coach', icon: Bot },
+    { path: '/ai-coach', label: 'AI Coach', icon: Bot, requireAI: true },
     { path: '/create-challenge', label: 'Create', icon: Plus },
     { path: '/progress', label: 'Progress', icon: TrendingUp },
   ];
+  
+  const navItems = allNavItems.filter(item => {
+    // Hide AI Coach if globally disabled
+    if (item.requireAI && !aiCoachGloballyEnabled) {
+      return false;
+    }
+    return true;
+  });
 
   const isActive = (path) => location.pathname === path;
 
@@ -120,7 +159,7 @@ const Navigation = () => {
             </Link>
 
             {/* Desktop User Dropdown */}
-            <div className="hidden lg:block relative" ref={dropdownRef}>
+            <div className="hidden lg:block relative" ref={desktopDropdownRef}>
               <button
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
                 className="flex items-center space-x-2 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
@@ -185,6 +224,83 @@ const Navigation = () => {
                     <button
                       onClick={() => {
                         setUserDropdownOpen(false);
+                        handleLogout();
+                      }}
+                      className="w-full flex items-center space-x-3 px-4 py-2.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span className="text-sm font-medium">Sign Out</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Mobile User Dropdown - Shows on smaller screens */}
+            <div className="lg:hidden relative" ref={mobileDropdownRef}>
+              <button
+                onClick={() => setMobileUserDropdownOpen(!mobileUserDropdownOpen)}
+                className="flex items-center p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+              >
+                {user?.profilePhoto ? (
+                  <img
+                    src={user.profilePhoto}
+                    alt={user.displayName}
+                    className="w-8 h-8 rounded-full"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 dark:from-cyan-600 dark:to-blue-700 flex items-center justify-center shadow-md">
+                    <span className="text-white text-sm font-semibold">
+                      {user?.displayName?.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                )}
+              </button>
+
+              {/* Mobile User Dropdown Menu */}
+              {mobileUserDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50">
+                  {/* User Info */}
+                  <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{user?.displayName}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{user?.email}</p>
+                  </div>
+
+                  {/* Menu Items */}
+                  <div className="py-1">
+                    <Link
+                      to="/profile"
+                      onClick={() => setMobileUserDropdownOpen(false)}
+                      className="flex items-center space-x-3 px-4 py-2.5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      <User className="w-4 h-4" />
+                      <span className="text-sm font-medium">Profile</span>
+                    </Link>
+                    <Link
+                      to="/settings"
+                      onClick={() => setMobileUserDropdownOpen(false)}
+                      className="flex items-center space-x-3 px-4 py-2.5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      <Settings className="w-4 h-4" />
+                      <span className="text-sm font-medium">Settings</span>
+                    </Link>
+                    {isAdmin && (
+                      <>
+                        <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                        <Link
+                          to="/admin"
+                          onClick={() => setMobileUserDropdownOpen(false)}
+                          className="flex items-center space-x-3 px-4 py-2.5 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 transition-colors"
+                        >
+                          <Shield className="w-4 h-4" />
+                          <span className="text-sm font-medium">Admin Dashboard</span>
+                        </Link>
+                        <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                      </>
+                    )}
+                    <button
+                      onClick={() => {
+                        setMobileUserDropdownOpen(false);
                         handleLogout();
                       }}
                       className="w-full flex items-center space-x-3 px-4 py-2.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"

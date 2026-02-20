@@ -104,6 +104,39 @@ export const UserChallenge = {
       .toArray();
   },
   
+  // All participants in this specific challenge instance (same challengeId)
+  allParticipants: async (parent, _, { db, user }) => {
+    // Get all user challenges for the same base challenge that are active
+    const allUserChallenges = await db.collection('userChallenges')
+      .find({
+        challengeId: parent.challengeId,
+        status: 'active'
+      })
+      .toArray();
+    
+    // Get user details for each participant
+    const participants = await Promise.all(
+      allUserChallenges.map(async (uc) => {
+        const participantUser = await db.collection('users').findOne({ _id: uc.userId });
+        return {
+          user: participantUser,
+          currentStreak: uc.currentStreak,
+          totalCheckIns: uc.totalCheckIns,
+          completionRate: uc.completionRate,
+          lastCheckInAt: uc.lastCheckInAt,
+          isYou: user && uc.userId.equals(user._id)
+        };
+      })
+    );
+    
+    // Sort: current user first, then by streak
+    return participants.sort((a, b) => {
+      if (a.isYou) return -1;
+      if (b.isYou) return 1;
+      return b.currentStreak - a.currentStreak;
+    });
+  },
+  
   lastCheckIn: async (parent, _, { db }) => {
     if (!parent.lastCheckInAt) return null;
     
@@ -248,6 +281,34 @@ export const TaskProgress = {
   completedCount: (parent) => parent.completedCount || 0
 };
 
+export const UserChallengeParticipant = {
+  user: (parent) => parent.user,
+  currentStreak: (parent) => parent.currentStreak,
+  totalCheckIns: (parent) => parent.totalCheckIns,
+  completionRate: (parent) => parent.completionRate,
+  lastCheckInAt: (parent) => parent.lastCheckInAt?.toISOString?.() || parent.lastCheckInAt || null,
+  isYou: (parent) => parent.isYou || false
+};
+
+export const FeatureRequest = {
+  id: (parent) => parent._id?.toString() || parent.id,
+  user: async (parent, _, { db }) => {
+    if (!parent.userId) return null;
+    return await db.collection('users').findOne({ _id: parent.userId });
+  },
+  createdAt: (parent) => parent.createdAt?.toISOString() || new Date().toISOString(),
+  updatedAt: (parent) => parent.updatedAt?.toISOString() || new Date().toISOString()
+};
+
+export const FriendActivity = {
+  id: (parent) => parent.id || parent._id?.toString() || `activity_${Date.now()}`,
+  user: (parent) => parent.user,
+  action: (parent) => parent.action || 'completed_checkin',
+  challenge: (parent) => parent.challenge || null,
+  message: (parent) => parent.message || '',
+  timestamp: (parent) => parent.timestamp?.toISOString?.() || parent.timestamp || new Date().toISOString()
+};
+
 export default {
   User,
   Challenge,
@@ -257,5 +318,8 @@ export default {
   Notification,
   AIInsight,
   ChallengeRecommendation,
-  TaskProgress
+  TaskProgress,
+  UserChallengeParticipant,
+  FeatureRequest,
+  FriendActivity
 };
