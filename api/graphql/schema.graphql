@@ -6,6 +6,7 @@ type User {
   email: String!
   displayName: String!
   profilePhoto: String
+  timezone: String! # User timezone (e.g., "America/New_York", "Asia/Kolkata")
   settings: UserSettings!
   emailConfig: EmailConfig
   emailVerified: Boolean!
@@ -420,6 +421,7 @@ type Mutation {
     email: String!
     password: String!
     displayName: String!
+    timezone: String!
   ): AuthPayload!
   
   login(

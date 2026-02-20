@@ -98,9 +98,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const signup = async (email, password, displayName) => {
+  const signup = async (email, password, displayName, timezone) => {
     try {
-      const result = await signupMutation({ variables: { email, password, displayName } });
+      const result = await signupMutation({ variables: { email, password, displayName, timezone } });
       
       // Debug logging
       console.log('🔍 Signup mutation result:', result);

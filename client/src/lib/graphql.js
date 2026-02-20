@@ -5,14 +5,15 @@ import { gql } from '@apollo/client';
 // ============================================================
 
 export const SIGNUP = gql`
-  mutation Signup($email: String!, $password: String!, $displayName: String!) {
-    signup(email: $email, password: $password, displayName: $displayName) {
+  mutation Signup($email: String!, $password: String!, $displayName: String!, $timezone: String!) {
+    signup(email: $email, password: $password, displayName: $displayName, timezone: $timezone) {
       token
       user {
         id
         email
         displayName
         profilePhoto
+        timezone
         emailVerified
         stats {
           totalChallenges
@@ -55,6 +56,7 @@ export const GET_ME = gql`
       email
       displayName
       profilePhoto
+      timezone
       emailVerified
       role
       settings {
@@ -632,6 +634,35 @@ export const UPDATE_SYSTEM_SETTINGS = gql`
       aiCoachEnabled
       updatedAt
       updatedBy
+    }
+  }
+`;
+
+export const DELETE_CHALLENGE = gql`
+  mutation DeleteChallenge($id: ID!) {
+    deleteChallenge(id: $id)
+  }
+`;
+
+export const GET_ALL_CHALLENGES = gql`
+  query GetAllChallenges {
+    challenges(limit: 1000) {
+      id
+      name
+      description
+      category
+      isTemplate
+      isPublic
+      createdBy {
+        id
+        displayName
+        email
+      }
+      stats {
+        totalUsers
+        activeUsers
+      }
+      createdAt
     }
   }
 `;

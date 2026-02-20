@@ -50,11 +50,11 @@ export const Mutation = {
   // AUTHENTICATION
   // ============================================================
   
-  signup: async (_, { email, password, displayName }, { db }) => {
+  signup: async (_, { email, password, displayName, timezone }, { db }) => {
     try {
       // Validate inputs
-      if (!email || !password || !displayName) {
-        throw new Error('Email, password, and display name are required');
+      if (!email || !password || !displayName || !timezone) {
+        throw new Error('Email, password, display name, and timezone are required');
       }
 
       // Trim and validate email
@@ -99,6 +99,7 @@ export const Mutation = {
         passwordHash,
         displayName,
         profilePhoto: null,
+        timezone: timezone || 'UTC', // User's timezone for 24-hour check-in reset
         emailVerified: false,
         verificationCode,
         verificationCodeExpires: codeExpires,
@@ -809,13 +810,23 @@ export const Mutation = {
       throw new Error('Challenge not found');
     }
 
-    if (!challenge.createdBy.equals(user._id)) {
-      throw new Error('Not authorized to delete this challenge');
+    // Allow admin to delete any challenge, or creator to delete their own
+    const isAdmin = user.role === 'admin';
+    const isCreator = challenge.createdBy && challenge.createdBy.equals(user._id);
+    
+    if (!isAdmin && !isCreator) {
+      throw new Error('Not authorized to delete this challenge. Only admins or challenge creators can delete challenges.');
     }
 
+    // Delete the challenge
     await db.collection('challenges').deleteOne({ _id: new ObjectId(id) });
     
-    console.log('✅ Challenge deleted:', id);
+    // Clean up related data
+    const challengeId = new ObjectId(id);
+    await db.collection('userChallenges').deleteMany({ challengeId });
+    await db.collection('checkIns').deleteMany({ challengeId });
+    
+    console.log(`✅ Challenge deleted by ${isAdmin ? 'admin' : 'creator'}:`, id);
 
     return true;
   },
@@ -1034,18 +1045,27 @@ export const Mutation = {
       throw new Error('Task not found in this challenge');
     }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Get user's timezone (default to UTC if not set)
+    const userTimezone = user.timezone || 'UTC';
+    
+    // Calculate "today" in the user's timezone
+    const nowInUserTz = new Date().toLocaleString('en-US', { timeZone: userTimezone });
+    const userLocalDate = new Date(nowInUserTz);
+    userLocalDate.setHours(0, 0, 0, 0);
+    
+    // Get the start of today in user's timezone as UTC
+    const todayInUserTz = new Date(userLocalDate.toLocaleString('en-US', { timeZone: 'UTC' }));
+    todayInUserTz.setHours(0, 0, 0, 0);
 
-    // Check if already checked in today for this specific task
+    // Check if already checked in today (based on user's timezone) for this specific task
     const existingCheckIn = await db.collection('checkIns').findOne({
       userChallengeId: new ObjectId(userChallengeId),
       taskId: taskId,
-      date: today
+      date: { $gte: todayInUserTz }
     });
 
     if (existingCheckIn) {
-      throw new Error('Already checked in today for this task');
+      throw new Error('Already checked in today for this task. The 24-hour window resets at midnight in your timezone.');
     }
 
     let photoUrl = null;
@@ -1072,14 +1092,15 @@ export const Mutation = {
       */
     }
 
-    // Create check-in
+    // Create check-in with user's timezone date
     const checkIn = {
       userChallengeId: new ObjectId(userChallengeId),
       userId: user._id,
       challengeId: userChallenge.challengeId,
       taskId: taskId,
-      date: today,
-      timestamp: new Date(),
+      date: todayInUserTz, // Store the date in user's timezone (as midnight UTC)
+      timestamp: new Date(), // Actual timestamp of check-in
+      timezone: userTimezone, // Store which timezone was used
       note: note || null,
       photoUrl,
       aiVerification,

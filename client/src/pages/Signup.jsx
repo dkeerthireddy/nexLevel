@@ -10,6 +10,7 @@ const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [timezone, setTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -64,10 +65,15 @@ const Signup = () => {
       return;
     }
 
+    if (!timezone) {
+      setError('Timezone is required');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const result = await signup(email, password, name);
+      const result = await signup(email, password, name, timezone);
       if (result?.redirectTo) {
         navigate(result.redirectTo);
       }
@@ -168,6 +174,38 @@ const Signup = () => {
               className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
               placeholder="••••••••"
             />
+          </div>
+
+          <div>
+            <label htmlFor="timezone" className="block text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
+              Timezone
+            </label>
+            <select
+              id="timezone"
+              value={timezone}
+              onChange={(e) => setTimezone(e.target.value)}
+              required
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+            >
+              <option value="">Select your timezone</option>
+              <option value="America/New_York">Eastern Time (US & Canada)</option>
+              <option value="America/Chicago">Central Time (US & Canada)</option>
+              <option value="America/Denver">Mountain Time (US & Canada)</option>
+              <option value="America/Los_Angeles">Pacific Time (US & Canada)</option>
+              <option value="America/Anchorage">Alaska</option>
+              <option value="Pacific/Honolulu">Hawaii</option>
+              <option value="Europe/London">London</option>
+              <option value="Europe/Paris">Paris, Berlin, Rome</option>
+              <option value="Asia/Dubai">Dubai</option>
+              <option value="Asia/Kolkata">India Standard Time</option>
+              <option value="Asia/Shanghai">China, Singapore</option>
+              <option value="Asia/Tokyo">Tokyo</option>
+              <option value="Australia/Sydney">Sydney</option>
+              <option value="Pacific/Auckland">Auckland</option>
+            </select>
+            <p className="mt-1 text-xs text-gray-500">
+              Your daily check-in resets at midnight in your timezone
+            </p>
           </div>
 
           <button

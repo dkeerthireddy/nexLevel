@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
-import { Shield, Users, MessageSquare, Target, Activity, CheckCircle, Clock, AlertCircle, StickyNote, Save, X, Bot, Power } from 'lucide-react';
-import { GET_ALL_FEEDBACK, UPDATE_FEEDBACK_STATUS, ADD_FEEDBACK_NOTE, GET_SYSTEM_STATS, GET_SYSTEM_SETTINGS, UPDATE_SYSTEM_SETTINGS } from '../lib/graphql';
+import { Shield, Users, MessageSquare, Target, Activity, CheckCircle, Clock, AlertCircle, StickyNote, Save, X, Bot, Power, Trash2 } from 'lucide-react';
+import { GET_ALL_FEEDBACK, UPDATE_FEEDBACK_STATUS, ADD_FEEDBACK_NOTE, GET_SYSTEM_STATS, GET_SYSTEM_SETTINGS, UPDATE_SYSTEM_SETTINGS, DELETE_CHALLENGE, GET_ALL_CHALLENGES } from '../lib/graphql';
 import Layout from '../components/common/Layout';
 
 const AdminDashboard = () => {
@@ -37,13 +37,23 @@ const AdminDashboard = () => {
     }
   });
 
-  const { data: settingsData, loading: settingsLoading } = useQuery(GET_SYSTEM_SETTINGS, {
+  const { data: settingsData, loading: settingsLoading, refetch: refetchSettings } = useQuery(GET_SYSTEM_SETTINGS, {
     fetchPolicy: 'network-only',
     onError: (err) => {
       console.error('❌ GET_SYSTEM_SETTINGS Error:', err);
     },
     onCompleted: (data) => {
       console.log('✅ GET_SYSTEM_SETTINGS completed:', data?.systemSettings);
+    }
+  });
+
+  const { data: challengesData, loading: challengesLoading, refetch: refetchChallenges } = useQuery(GET_ALL_CHALLENGES, {
+    fetchPolicy: 'network-only',
+    onError: (err) => {
+      console.error('❌ GET_ALL_CHALLENGES Error:', err);
+    },
+    onCompleted: (data) => {
+      console.log('✅ GET_ALL_CHALLENGES completed:', data?.challenges?.length, 'challenges');
     }
   });
 
@@ -79,6 +89,51 @@ const AdminDashboard = () => {
       alert('Failed to save note: ' + err.message);
     }
   });
+
+  const [deleteChallenge, { loading: deletingChallenge }] = useMutation(DELETE_CHALLENGE, {
+    onCompleted: () => {
+      refetchChallenges();
+      alert('Challenge deleted successfully!');
+    },
+    onError: (err) => {
+      console.error('Error deleting challenge:', err);
+      alert('Failed to delete challenge: ' + err.message);
+    }
+  });
+
+  const handleToggleAICoach = async () => {
+    try {
+      await updateSettings({
+        variables: {
+          aiCoachEnabled: !aiCoachEnabled
+        }
+      });
+      refetchSettings();
+    } catch (err) {
+      console.error('Error toggling AI Coach:', err);
+    }
+  };
+
+  const handleDeleteChallenge = async (challengeId, challengeName) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${challengeName}"?\n\n` +
+      `This will permanently delete:\n` +
+      `- The challenge\n` +
+      `- All user instances of this challenge\n` +
+      `- All check-ins for this challenge\n\n` +
+      `This action cannot be undone!`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await deleteChallenge({
+        variables: { id: challengeId }
+      });
+    } catch (err) {
+      console.error('Error deleting challenge:', err);
+    }
+  };
 
   const handleStatusChange = async (feedbackId, newStatus) => {
     try {
@@ -136,13 +191,14 @@ const AdminDashboard = () => {
   const feedback = data?.allFeedback || [];
   const stats = statsData?.systemStats;
   const aiCoachEnabled = settingsData?.systemSettings?.aiCoachEnabled ?? true;
+  const challenges = challengesData?.challenges || [];
 
   const pendingCount = feedback.filter(f => f.status === 'pending').length;
   const reviewedCount = feedback.filter(f => f.status === 'reviewed').length;
   const resolvedCount = feedback.filter(f => f.status === 'resolved').length;
 
   // Show loading state
-  if (loading || statsLoading || settingsLoading) {
+  if (loading || statsLoading || settingsLoading || challengesLoading) {
     console.log('⏳ Loading admin dashboard data...');
     return (
       <Layout>
@@ -346,6 +402,77 @@ const AdminDashboard = () => {
               </div>
               <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
+          </div>
+        </div>
+
+        {/* Challenge Management */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <Target className="w-6 h-6 text-cyan-600" />
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Challenge Management</h2>
+            </div>
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              {challenges.length} total challenges
+            </span>
+          </div>
+
+          <div className="space-y-3 max-h-96 overflow-y-auto">
+            {challenges.length === 0 ? (
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">No challenges found</p>
+            ) : (
+              challenges.map((challenge) => (
+                <div
+                  key={challenge.id}
+                  className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100">{challenge.name}</h3>
+                        {challenge.isTemplate && (
+                          <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs rounded-full">
+                            Template
+                          </span>
+                        )}
+                        {challenge.isPublic ? (
+                          <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 text-xs rounded-full">
+                            Public
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                            Private
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{challenge.description}</p>
+                      <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                        <span className="flex items-center gap-1">
+                          <Users className="w-3 h-3" />
+                          {challenge.stats.totalUsers} users
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Activity className="w-3 h-3" />
+                          {challenge.stats.activeUsers} active
+                        </span>
+                        <span>Category: {challenge.category}</span>
+                        {challenge.createdBy && (
+                          <span>By: {challenge.createdBy.displayName}</span>
+                        )}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteChallenge(challenge.id, challenge.name)}
+                      disabled={deletingChallenge}
+                      className="ml-4 p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors disabled:opacity-50"
+                      title="Delete Challenge"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 

@@ -17,6 +17,7 @@
 - **Daily Check-ins** - Track progress with notes and optional photo verification
 - **Grace Skips** - Configurable skip allowances to maintain realistic goals
 - **Progress Analytics** - Beautiful visualizations of your journey and completion rates
+- **Timezone Support** - 24-hour check-in windows reset at midnight in your timezone
 
 ### 🤖 AI-Powered Features
 - **AI Coach** - Get personalized motivational messages based on your progress
@@ -47,7 +48,7 @@
 - **Quiet Hours** - Schedule notification-free time periods
 - **Dark Mode** - Full dark theme support
 - **Feedback System** - Submit feedback and feature requests
-- **Admin Dashboard** - System statistics and user management (admin only)
+- **Admin Dashboard** - System statistics, user management, and challenge deletion (admin only)
 - **Certificates** - Generate achievement certificates for completed challenges
 - **Mobile-First Design** - Responsive UI optimized for all devices
 
@@ -57,10 +58,9 @@
 
 ### Prerequisites
 - **Node.js** 18+ and npm
-- **MongoDB Atlas** account (free tier works)
-- **Gmail** account for sending emails
-- **Google Gemini API** key (free tier available)
-- **Cloudinary** account (optional, for photo uploads)
+- **MongoDB** database (MongoDB Atlas recommended)
+- **Email Service** (Gmail with app password)
+- **AI API Key** (Google Gemini API)
 
 ### 1. Clone the Repository
 ```bash
@@ -81,52 +81,35 @@ This installs dependencies for both client and API.
 Create `api/.env` from `api/.env.example`:
 
 ```env
-# MongoDB (Required)
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/nexlevel?retryWrites=true&w=majority
+# MongoDB Connection (Required)
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database?retryWrites=true&w=majority
 
 # JWT Secret (Required) - Generate with: openssl rand -base64 32
-JWT_SECRET=your-super-secret-jwt-key-change-this
+JWT_SECRET=your-randomly-generated-secret-key-min-32-chars
 
-# Admin Email for System Emails (Required)
-# Get Gmail App Password: https://myaccount.google.com/apppasswords
-ADMIN_EMAIL=your-email@gmail.com
-ADMIN_EMAIL_PASSWORD=your-16-char-app-password
+# Email Configuration (Required for notifications)
+ADMIN_EMAIL=your-email@example.com
+ADMIN_EMAIL_PASSWORD=your-email-app-password
 
-# Cloudinary for Photo Uploads (Optional - currently disabled)
+# AI API Key (Required for AI features)
+GEMINI_API_KEY=your-api-key-here
+
+# Optional: Image Upload Service
 CLOUDINARY_CLOUD_NAME=your-cloud-name
 CLOUDINARY_API_KEY=your-api-key
 CLOUDINARY_API_SECRET=your-api-secret
 
-# Google Gemini AI (Highly Recommended for AI features)
-# Get free key: https://aistudio.google.com/app/apikey
-GEMINI_API_KEY=your-gemini-api-key
-
-# OAuth (Optional)
-# GOOGLE_CLIENT_ID=your-google-client-id
-# GOOGLE_CLIENT_SECRET=your-google-client-secret
-# GITHUB_CLIENT_ID=your-github-client-id
-# GITHUB_CLIENT_SECRET=your-github-client-secret
-
-# Server Configuration
-PORT=4000
+# Environment
 NODE_ENV=development
-APP_NAME=nexLevel
-APP_URL=http://localhost:5173
-CLIENT_URL=http://localhost:5173
-CORS_ORIGIN=http://localhost:5173
+PORT=4000
 ```
 
 #### Client Configuration (`client/.env`)
 Create `client/.env` from `client/.env.example`:
 
 ```env
-# API Endpoint (Required)
-VITE_GRAPHQL_ENDPOINT=http://localhost:4000/graphql
-VITE_API_URL=http://localhost:4000
-
-# App Configuration
-VITE_APP_NAME=nexLevel
-VITE_APP_URL=http://localhost:5173
+# API Endpoint
+VITE_API_URL=http://localhost:4000/graphql
 ```
 
 ### 4. Start Development Servers
@@ -135,27 +118,42 @@ VITE_APP_URL=http://localhost:5173
 # Start both client and API concurrently
 npm run dev
 
-# OR start separately:
-npm run dev:client  # Client on http://localhost:5173
-npm run dev:api     # API on http://localhost:4000
+# Or start individually:
+npm run dev:client   # Client on http://localhost:5173
+npm run dev:api      # API on http://localhost:4000
 ```
 
 ### 5. Access the Application
-
 - **Frontend**: http://localhost:5173
-- **GraphQL API**: http://localhost:4000/graphql
-- **Health Check**: http://localhost:4000/health
+- **GraphQL Playground**: http://localhost:4000/graphql
 
 ---
 
-## 📚 API Documentation
+## 🔧 Configuration
+
+### Making a User Admin
+```bash
+cd api
+node scripts/make-admin.js user@example.com
+```
+
+### Seeding Popular Challenges (Optional)
+```bash
+cd api
+node scripts/seed-popular-challenges.js
+```
+
+---
+
+## 📡 API Documentation
 
 ### GraphQL Endpoint
 ```
-POST http://localhost:4000/graphql
+http://localhost:4000/graphql
 ```
 
-### Key Queries
+### Example Queries
+
 ```graphql
 # Get current user
 query {
@@ -163,9 +161,11 @@ query {
     id
     email
     displayName
+    timezone
     stats {
       totalChallenges
       activeChallenges
+      totalCheckIns
       longestStreak
     }
   }
@@ -173,30 +173,40 @@ query {
 
 # Browse challenges
 query {
-  challenges(limit: 10) {
+  challenges(category: "Fitness", limit: 10) {
     id
     name
+    description
     category
-    tasks {
-      id
-      title
+    stats {
+      totalUsers
+      activeUsers
     }
   }
 }
 
-# Get AI recommendations
+# Get user's active challenges
 query {
-  aiRecommendations {
+  myActiveChallenges {
+    id
     challenge {
       name
+      description
     }
-    score
-    reason
+    currentStreak
+    completionRate
+    taskProgress {
+      task {
+        title
+      }
+      completed
+    }
   }
 }
 ```
 
-### Key Mutations
+### Example Mutations
+
 ```graphql
 # Create challenge
 mutation {
@@ -267,74 +277,11 @@ nexLevel/
 │   │   ├── mongodb.js    # Database connection
 │   │   └── ...
 │   ├── cron/             # Scheduled jobs
+│   ├── scripts/          # Admin utilities
 │   └── package.json
 │
 └── package.json          # Root workspace config
 ```
-
----
-
-## 🔧 Configuration Guide
-
-### Email Setup (Required)
-1. Go to [Google App Passwords](https://myaccount.google.com/apppasswords)
-2. Create a new app password for "Mail"
-3. Use the 16-character password in `ADMIN_EMAIL_PASSWORD`
-
-### MongoDB Atlas Setup (Required)
-1. Create free account at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
-2. Create a cluster
-3. Get connection string and add to `MONGODB_URI`
-
-### Google Gemini AI Setup (Recommended)
-1. Get free API key at [Google AI Studio](https://aistudio.google.com/app/apikey)
-2. Add to `GEMINI_API_KEY`
-3. AI features will be enabled automatically
-
-### Making a User Admin
-```bash
-cd api
-node scripts/make-admin.js user@example.com
-```
-
----
-
-## 🧪 Testing
-
-### Run Comprehensive Test Suite
-```bash
-cd nexLevel
-node tmp_rovodev_comprehensive_test.js
-```
-
-### Test Results
-- **96% Pass Rate** (24/25 tests)
-- All critical features working
-- AI Insights requires user activity data (expected)
-
----
-
-## 🌐 Production Deployment
-
-### Environment Variables
-Set all required environment variables in your hosting platform:
-- Vercel: Project Settings → Environment Variables
-- Heroku: Settings → Config Vars
-- AWS/Azure: Application Configuration
-
-### Build Commands
-```bash
-# Client build
-cd client && npm run build
-
-# API build
-cd api && npm run build
-```
-
-### Deployment Platforms
-- **Frontend**: Vercel, Netlify, AWS Amplify
-- **Backend**: Vercel Functions, Heroku, Railway, AWS Lambda
-- **Database**: MongoDB Atlas (recommended)
 
 ---
 
