@@ -74,14 +74,14 @@ export const AuthProvider = ({ children }) => {
       // Apollo Client throws errors for GraphQL errors, so if we get here, result.data should exist
       if (!result || !result.data || !result.data.login) {
         console.error('❌ Unexpected response structure:', result);
-        throw new Error('Unexpected response from server. Please try again.');
+        throw new Error('Invalid email or password. Please check your credentials and try again.');
       }
       
       const { token, user } = result.data.login;
       
       if (!token || !user) {
         console.error('❌ Missing token or user:', { token: !!token, user: !!user });
-        throw new Error('Incomplete login data. Please try again.');
+        throw new Error('Invalid email or password. Please check your credentials and try again.');
       }
       
       localStorage.setItem('authToken', token);
@@ -93,7 +93,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('❌ Login error:', error);
       // GraphQL errors are thrown by Apollo Client - extract the message
-      const message = error.graphQLErrors?.[0]?.message || error.message || 'Login failed';
+      const message = error.graphQLErrors?.[0]?.message || error.message || 'Invalid email or password. Please check your credentials and try again.';
       throw new Error(message);
     }
   };

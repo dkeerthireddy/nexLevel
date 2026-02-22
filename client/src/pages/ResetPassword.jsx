@@ -35,8 +35,29 @@ const ResetPassword = () => {
       return;
     }
 
+    // Comprehensive password validation
     if (password.length < 8) {
       setError('Password must be at least 8 characters long');
+      return;
+    }
+
+    if (!/[A-Z]/.test(password)) {
+      setError('Password must contain at least one uppercase letter');
+      return;
+    }
+
+    if (!/[a-z]/.test(password)) {
+      setError('Password must contain at least one lowercase letter');
+      return;
+    }
+
+    if (!/[0-9]/.test(password)) {
+      setError('Password must contain at least one number');
+      return;
+    }
+
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+      setError('Password must contain at least one special character');
       return;
     }
 
@@ -132,7 +153,9 @@ const ResetPassword = () => {
               required
               minLength={8}
             />
-            <p className="text-xs text-gray-500 mt-1">Minimum 8 characters</p>
+            <p className="text-xs text-gray-500 mt-1">
+              Must contain: 8+ chars, uppercase, lowercase, number, special character
+            </p>
           </div>
 
           <div>

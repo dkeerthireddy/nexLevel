@@ -159,10 +159,33 @@ const Settings = () => {
       alert('Please enter the 6-digit verification code');
       return;
     }
+    
+    // Comprehensive password validation
     if (newPassword.length < 8) {
       alert('Password must be at least 8 characters long');
       return;
     }
+
+    if (!/[A-Z]/.test(newPassword)) {
+      alert('Password must contain at least one uppercase letter');
+      return;
+    }
+
+    if (!/[a-z]/.test(newPassword)) {
+      alert('Password must contain at least one lowercase letter');
+      return;
+    }
+
+    if (!/[0-9]/.test(newPassword)) {
+      alert('Password must contain at least one number');
+      return;
+    }
+
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword)) {
+      alert('Password must contain at least one special character');
+      return;
+    }
+    
     if (newPassword !== confirmNewPassword) {
       alert('Passwords do not match');
       return;
@@ -587,9 +610,12 @@ const Settings = () => {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500"
-                    placeholder="At least 8 characters"
+                    placeholder="Enter new password"
                     minLength={8}
                   />
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Must contain: 8+ chars, uppercase, lowercase, number, special character
+                  </p>
                 </div>
 
                 <div className="mb-4">
