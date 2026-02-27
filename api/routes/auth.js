@@ -26,7 +26,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
       res.redirect(`${frontendUrl}/auth/callback?token=${token}`);
     }
   );
-  console.log('✅ Google OAuth routes enabled');
+
 }
 
 // GitHub OAuth (only if configured)
@@ -46,7 +46,7 @@ if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
       res.redirect(`${frontendUrl}/auth/callback?token=${token}`);
     }
   );
-  console.log('✅ GitHub OAuth routes enabled');
+
 }
 
 // Apple Sign In (placeholder - requires Apple Developer account)

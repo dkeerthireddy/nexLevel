@@ -105,8 +105,7 @@ export const Query = {
 
   popularChallenges: async (_, { limit = 10 }, { db }) => {
     // Public query - no authentication required
-    console.log('🔍 popularChallenges query called with limit:', limit);
-    
+
     // Fetch both template challenges AND user-created public challenges
     const filter = { isPublic: true };
     console.log('🔍 Filter:', JSON.stringify(filter));
@@ -120,9 +119,7 @@ export const Query = {
       })
       .limit(limit * 2) // Fetch more to account for duplicates
       .toArray();
-    
-    console.log('📊 Found challenges:', results.length);
-    
+
     // Remove duplicates based on name, duration, frequency, and tasks
     const uniqueChallenges = [];
     const seenSignatures = new Set();
@@ -139,7 +136,7 @@ export const Query = {
         seenSignatures.add(signature);
         uniqueChallenges.push(challenge);
       } else {
-        console.log('🔍 Duplicate detected:', challenge.name);
+
       }
       
       // Stop when we have enough unique challenges
@@ -147,10 +144,9 @@ export const Query = {
         break;
       }
     }
-    
-    console.log('📊 Unique challenges after deduplication:', uniqueChallenges.length);
+
     if (uniqueChallenges.length > 0) {
-      console.log('📋 Sample challenge:', uniqueChallenges[0].name, '- isTemplate:', uniqueChallenges[0].isTemplate, ', isPublic:', uniqueChallenges[0].isPublic);
+
     }
     
     return uniqueChallenges;

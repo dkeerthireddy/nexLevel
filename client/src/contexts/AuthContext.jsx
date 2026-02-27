@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     },
     onError: (error) => {
-      console.log('GET_ME query failed:', error.message);
+
       // Clear invalid authentication
       localStorage.removeItem('authToken');
       localStorage.removeItem('user');
@@ -69,8 +69,7 @@ export const AuthProvider = ({ children }) => {
       const result = await loginMutation({ variables: { email, password } });
       
       // Debug logging
-      console.log('🔍 Login mutation result:', result);
-      
+
       // Apollo Client throws errors for GraphQL errors, so if we get here, result.data should exist
       if (!result || !result.data || !result.data.login) {
         console.error('❌ Unexpected response structure:', result);
@@ -88,7 +87,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(user));
       setUser(user);
       setHasToken(true);
-      console.log('✅ Login successful');
+
       return { success: true, redirectTo: '/dashboard' };
     } catch (error) {
       console.error('❌ Login error:', error);
@@ -103,8 +102,7 @@ export const AuthProvider = ({ children }) => {
       const result = await signupMutation({ variables: { email, password, displayName, timezone } });
       
       // Debug logging
-      console.log('🔍 Signup mutation result:', result);
-      
+
       // Apollo Client throws errors for GraphQL errors, so if we get here, result.data should exist
       if (!result || !result.data || !result.data.signup) {
         console.error('❌ Unexpected response structure:', result);
@@ -122,7 +120,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(user));
       setUser(user);
       setHasToken(true);
-      console.log('✅ Signup successful');
+
       return { success: true, redirectTo: '/verify-email-code' };
     } catch (error) {
       console.error('❌ Signup error:', error);

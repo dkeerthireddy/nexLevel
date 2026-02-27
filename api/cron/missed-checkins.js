@@ -19,8 +19,6 @@ export default async function handler(req, res) {
 
   try {
     const { db } = await connectToDatabase();
-    
-    console.log('🔍 Checking for missed check-ins...');
 
     // Get yesterday's date
     const yesterday = new Date();
@@ -78,7 +76,7 @@ export default async function handler(req, res) {
             }
           );
           shouldResetStreak = false;
-          console.log(`✓ Used grace skip for user challenge ${uc._id}`);
+
         } else {
           // Reset streak
           await db.collection('userChallenges').updateOne(
@@ -89,7 +87,7 @@ export default async function handler(req, res) {
             }
           );
           streaksReset++;
-          console.log(`✓ Reset streak for user challenge ${uc._id}`);
+
         }
 
         // Get user for notification settings
@@ -128,7 +126,7 @@ export default async function handler(req, res) {
                 user.emailConfig,
                 uc.userId
               );
-              console.log(`✓ Sent missed check-in email to ${user.email}`);
+
             } catch (emailError) {
               console.error(`Failed to send missed check-in email to ${user.email}:`, emailError.message);
             }
@@ -193,14 +191,11 @@ export default async function handler(req, res) {
         notificationsSent++;
       }
 
-      console.log(`✓ Marked challenge ${uc._id} as completed`);
     }
 
-    console.log(`✅ Missed check-ins processing complete`);
-    console.log(`   - Missed check-ins: ${missedCheckIns}`);
-    console.log(`   - Streaks reset: ${streaksReset}`);
-    console.log(`   - Notifications sent: ${notificationsSent}`);
-    console.log(`   - Challenges completed: ${completedChallenges.length}`);
+
+
+
 
     return res.status(200).json({
       success: true,

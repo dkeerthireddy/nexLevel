@@ -20,7 +20,7 @@ export async function createContext({ req }) {
       user = await getUserFromToken(token, db);
     } catch (error) {
       // Invalid token - user remains null
-      console.log('Invalid token:', error.message);
+
     }
   }
   

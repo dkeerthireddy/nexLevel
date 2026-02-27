@@ -31,16 +31,15 @@ if (!MONGODB_URI) {
 async function makeAdmin(email) {
   if (!email) {
     console.error('❌ Error: Please provide an email address');
-    console.log('\nUsage: node scripts/make-admin.js email@example.com');
+
     process.exit(1);
   }
 
   const client = new MongoClient(MONGODB_URI);
 
   try {
-    console.log('🔌 Connecting to database...');
+
     await client.connect();
-    console.log('✅ Connected to database');
 
     const db = client.db();
     
@@ -49,13 +48,13 @@ async function makeAdmin(email) {
     
     if (!user) {
       console.error(`❌ Error: User not found with email: ${email}`);
-      console.log('\n💡 Tip: User must sign up first before being made admin');
+
       process.exit(1);
     }
 
     // Check if already admin
     if (user.role === 'admin') {
-      console.log(`ℹ️  User ${email} is already an admin`);
+
       process.exit(0);
     }
 
@@ -66,12 +65,12 @@ async function makeAdmin(email) {
     );
 
     if (result.modifiedCount === 1) {
-      console.log(`✅ Success! ${email} is now an admin`);
-      console.log(`\n👤 User Details:`);
-      console.log(`   Name: ${user.displayName}`);
-      console.log(`   Email: ${user.email}`);
+
+
+
+
       console.log(`   Role: admin (updated)`);
-      console.log(`   Email Verified: ${user.emailVerified ? 'Yes' : 'No'}`);
+
     } else {
       console.error('❌ Error: Failed to update user role');
       process.exit(1);
@@ -82,7 +81,7 @@ async function makeAdmin(email) {
     process.exit(1);
   } finally {
     await client.close();
-    console.log('\n🔌 Disconnected from database');
+
   }
 }
 

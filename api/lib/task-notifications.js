@@ -31,7 +31,7 @@ export async function sendTaskCompletionNotificationToFriends(db, userId, userCh
       // Check if partner has notifications enabled
       if (!partner.settings?.notifications?.enabled || 
           !partner.settings?.notifications?.types?.partnerComplete) {
-        console.log(`Partner ${partner.displayName} has disabled partner completion notifications`);
+
         continue;
       }
 
@@ -122,7 +122,7 @@ export async function sendTaskReminderToFriends(db, userId, userChallengeId, pen
           partner.displayName,
           notification
         );
-        console.log(`✅ Task reminder email sent to ${partner.displayName}`);
+
       } catch (emailError) {
         console.error(`Failed to send task reminder email to ${partner.email}:`, emailError.message);
       }

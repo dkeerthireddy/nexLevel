@@ -5,8 +5,6 @@ import { onError } from '@apollo/client/link/error';
 // Get API URL from environment
 const API_URL = import.meta.env.VITE_GRAPHQL_ENDPOINT || 'http://localhost:4000/graphql';
 
-console.log('🔗 Apollo Client connecting to:', API_URL);
-
 // HTTP connection to the API
 const httpLink = createHttpLink({
   uri: API_URL,
@@ -37,7 +35,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
       // Handle authentication errors - but don't redirect during rendering
       // Let the AuthContext handle this gracefully
       if (message.includes('Not authenticated') || message.includes('Invalid token')) {
-        console.log('Authentication error detected - token may be invalid');
+
         // Don't do hard redirect here - let AuthContext handle it
         // This prevents interrupting React rendering which causes hooks errors
       }

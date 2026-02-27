@@ -46,8 +46,6 @@ export async function uploadToCloudinary(base64Image, folder = 'nexlevel') {
       ],
     });
 
-    console.log('✅ Image uploaded to Cloudinary:', result.secure_url);
-
     return {
       url: result.secure_url,
       publicId: result.public_id,
@@ -74,7 +72,7 @@ export async function deleteFromCloudinary(publicId) {
     const result = await cloudinary.uploader.destroy(publicId);
     
     if (result.result === 'ok') {
-      console.log('✅ Image deleted from Cloudinary:', publicId);
+
       return true;
     } else {
       throw new Error('Failed to delete image: ' + result.result);

@@ -19,8 +19,6 @@ export default async function handler(req, res) {
 
   try {
     const { db } = await connectToDatabase();
-    
-    console.log('🧹 Running data cleanup...');
 
     const now = new Date();
     let totalDeleted = 0;
@@ -29,7 +27,7 @@ export default async function handler(req, res) {
     const expiredMessages = await db.collection('aiMessages').deleteMany({
       expiresAt: { $lt: now }
     });
-    console.log(`✓ Deleted ${expiredMessages.deletedCount} expired AI messages`);
+
     totalDeleted += expiredMessages.deletedCount;
 
     // Delete old notifications (older than 30 days)
@@ -40,7 +38,7 @@ export default async function handler(req, res) {
       createdAt: { $lt: thirtyDaysAgo },
       read: true // Only delete read notifications
     });
-    console.log(`✓ Deleted ${oldNotifications.deletedCount} old notifications`);
+
     totalDeleted += oldNotifications.deletedCount;
 
     // Archive old completed challenges (older than 90 days)
@@ -56,7 +54,6 @@ export default async function handler(req, res) {
         $set: { status: 'archived' }
       }
     );
-    console.log(`✓ Archived ${archivedChallenges.modifiedCount} old completed challenges`);
 
     // Reset weekly grace skips (runs on Sunday/Monday)
     const dayOfWeek = now.getDay();
@@ -65,7 +62,7 @@ export default async function handler(req, res) {
         { status: 'active' },
         { $set: { graceSkipsUsed: 0 } }
       );
-      console.log(`✓ Reset grace skips for ${resetResult.modifiedCount} active challenges`);
+
     }
 
     // Log database stats
@@ -79,16 +76,13 @@ export default async function handler(req, res) {
       notifications: await db.collection('notifications').countDocuments(),
     };
 
-    console.log('📊 Database stats:');
     console.log(`   - Total size: ${(stats.dataSize / 1024 / 1024).toFixed(2)} MB`);
-    console.log(`   - Users: ${collections.users}`);
-    console.log(`   - Challenges: ${collections.challenges}`);
-    console.log(`   - User Challenges: ${collections.userChallenges}`);
-    console.log(`   - Check-ins: ${collections.checkIns}`);
-    console.log(`   - AI Messages: ${collections.aiMessages}`);
-    console.log(`   - Notifications: ${collections.notifications}`);
 
-    console.log(`✅ Cleanup complete: ${totalDeleted} items deleted`);
+
+
+
+
+
 
     return res.status(200).json({
       success: true,

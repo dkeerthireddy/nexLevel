@@ -75,7 +75,7 @@ export function configureOAuth(db) {
 
           const result = await db.collection('users').insertOne(newUser);
           user = { ...newUser, _id: result.insertedId };
-          console.log('✅ New Google OAuth user created:', email);
+
         } else {
           // Initialize emailConfig if not present (for existing users)
           if (!user.emailConfig) {
@@ -99,7 +99,7 @@ export function configureOAuth(db) {
               { $set: { lastLoginAt: new Date() } }
             );
           }
-          console.log('✅ Google OAuth user logged in:', email);
+
         }
 
         return done(null, user);
@@ -108,7 +108,7 @@ export function configureOAuth(db) {
       }
     }));
     strategiesConfigured++;
-    console.log('✅ Google OAuth strategy configured');
+
   }
 
   // GitHub OAuth Strategy
@@ -175,7 +175,7 @@ export function configureOAuth(db) {
 
           const result = await db.collection('users').insertOne(newUser);
           user = { ...newUser, _id: result.insertedId };
-          console.log('✅ New GitHub OAuth user created:', email);
+
         } else {
           // Initialize emailConfig if not present (for existing users)
           if (!user.emailConfig) {
@@ -199,7 +199,7 @@ export function configureOAuth(db) {
               { $set: { lastLoginAt: new Date() } }
             );
           }
-          console.log('✅ GitHub OAuth user logged in:', email);
+
         }
 
         return done(null, user);
@@ -208,7 +208,7 @@ export function configureOAuth(db) {
       }
     }));
     strategiesConfigured++;
-    console.log('✅ GitHub OAuth strategy configured');
+
   }
 
   // OAuth is completely optional - no warnings needed

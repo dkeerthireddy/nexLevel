@@ -10,7 +10,6 @@ async function addThemeToExistingUsers() {
 
   try {
     await client.connect();
-    console.log('Connected to MongoDB');
 
     const db = client.db();
     const usersCollection = db.collection('users');
@@ -19,8 +18,6 @@ async function addThemeToExistingUsers() {
     const usersWithoutTheme = await usersCollection.find({
       'settings.theme': { $exists: false }
     }).toArray();
-
-    console.log(`Found ${usersWithoutTheme.length} users without theme setting`);
 
     if (usersWithoutTheme.length > 0) {
       // Update all users to have default 'light' theme
@@ -34,9 +31,8 @@ async function addThemeToExistingUsers() {
         }
       );
 
-      console.log(`✅ Updated ${result.modifiedCount} users with default theme setting`);
     } else {
-      console.log('✅ All users already have theme setting');
+
     }
 
   } catch (error) {
@@ -44,7 +40,7 @@ async function addThemeToExistingUsers() {
     process.exit(1);
   } finally {
     await client.close();
-    console.log('Disconnected from MongoDB');
+
   }
 }
 

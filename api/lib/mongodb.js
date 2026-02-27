@@ -44,7 +44,6 @@ export async function connectToDatabase() {
 
     // Connect to MongoDB
     await client.connect();
-    console.log('✅ Connected to MongoDB Atlas');
 
     // Get database
     const db = client.db(dbName);
@@ -80,7 +79,7 @@ export async function closeDatabase() {
     await cachedClient.close();
     cachedClient = null;
     cachedDb = null;
-    console.log('MongoDB connection closed');
+
   }
 }
 
@@ -100,17 +99,17 @@ async function createIndexSafely(collection, keys, options = {}) {
     });
 
     if (indexExists) {
-      console.log(`  ⏭️  Index already exists: ${indexName}`);
+
       return;
     }
 
     // Create the index
     await collection.createIndex(keys, options);
-    console.log(`  ✅ Created index: ${indexName}`);
+
   } catch (error) {
     // If error is "index already exists", ignore it
     if (error.message.includes('already exists') || error.code === 85 || error.code === 86) {
-      console.log(`  ⏭️  Index already exists, skipping`);
+
     } else {
       console.warn(`  ⚠️  Failed to create index:`, error.message);
     }
@@ -122,22 +121,21 @@ async function createIndexSafely(collection, keys, options = {}) {
  */
 export async function initializeIndexes(db) {
   try {
-    console.log('Creating database indexes...');
 
     // Users indexes
-    console.log('\n📋 Users collection:');
+
     await createIndexSafely(db.collection('users'), { email: 1 }, { unique: true, name: 'email_unique' });
     await createIndexSafely(db.collection('users'), { friendIds: 1 });
     await createIndexSafely(db.collection('users'), { createdAt: -1 });
 
     // Challenges indexes
-    console.log('\n📋 Challenges collection:');
+
     await createIndexSafely(db.collection('challenges'), { category: 1, isTemplate: 1 });
     await createIndexSafely(db.collection('challenges'), { createdBy: 1 });
     await createIndexSafely(db.collection('challenges'), { 'stats.activeUsers': -1 });
 
     // UserChallenges indexes (CRITICAL for performance)
-    console.log('\n📋 UserChallenges collection:');
+
     await createIndexSafely(db.collection('userChallenges'), { userId: 1, status: 1 });
     await createIndexSafely(db.collection('userChallenges'), { challengeId: 1 });
     await createIndexSafely(db.collection('userChallenges'), { partnerIds: 1 });
@@ -149,27 +147,26 @@ export async function initializeIndexes(db) {
     });
 
     // CheckIns indexes
-    console.log('\n📋 CheckIns collection:');
+
     await createIndexSafely(db.collection('checkIns'), { userChallengeId: 1, date: -1 });
     await createIndexSafely(db.collection('checkIns'), { userId: 1, date: -1 });
     await createIndexSafely(db.collection('checkIns'), { challengeId: 1 });
     await createIndexSafely(db.collection('checkIns'), { date: 1 });
 
     // AI Messages indexes
-    console.log('\n📋 AI Messages collection:');
+
     await createIndexSafely(db.collection('aiMessages'), { userId: 1, createdAt: -1 });
     await createIndexSafely(db.collection('aiMessages'), { expiresAt: 1 }, { expireAfterSeconds: 0 });
 
     // AI Insights indexes
-    console.log('\n📋 AI Insights collection:');
+
     await createIndexSafely(db.collection('aiInsights'), { userId: 1 }, { unique: true });
     await createIndexSafely(db.collection('aiInsights'), { nextUpdateAt: 1 });
 
     // Notifications indexes
-    console.log('\n📋 Notifications collection:');
+
     await createIndexSafely(db.collection('notifications'), { userId: 1, read: 1, createdAt: -1 });
 
-    console.log('\n✅ Database indexes initialized successfully');
   } catch (error) {
     console.error('⚠️ Error initializing indexes:', error.message);
     // Don't throw - indexes are optional for functionality

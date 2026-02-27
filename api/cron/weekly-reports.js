@@ -20,8 +20,6 @@ export default async function handler(req, res) {
 
   try {
     const { db } = await connectToDatabase();
-    
-    console.log('📊 Running weekly reports generation...');
 
     // Get all users who have AI reports enabled
     const users = await db.collection('users')
@@ -55,7 +53,7 @@ export default async function handler(req, res) {
           .toArray();
 
         if (userChallenges.length === 0) {
-          console.log(`⊘ Skipping user ${user.email} - no active challenges`);
+
           continue;
         }
 
@@ -107,7 +105,6 @@ export default async function handler(req, res) {
         });
 
         reportsGenerated++;
-        console.log(`✓ Generated weekly report for ${user.email}`);
 
         // Rate limiting: wait 4 seconds between users (15 RPM = 1 every 4 sec)
         if (reportsGenerated < users.length) {
@@ -119,8 +116,6 @@ export default async function handler(req, res) {
         errors++;
       }
     }
-
-    console.log(`✅ Weekly reports complete: ${reportsGenerated} generated, ${errors} errors`);
 
     return res.status(200).json({
       success: true,

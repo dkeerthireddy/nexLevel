@@ -20,8 +20,6 @@ export default async function handler(req, res) {
   try {
     const { db } = await connectToDatabase();
     const currentHour = new Date().getHours();
-    
-    console.log(`⏰ Running daily reminders for hour: ${currentHour}`);
 
     // Find users who need reminders at this hour
     const userChallenges = await db.collection('userChallenges')
@@ -141,7 +139,7 @@ export default async function handler(req, res) {
               uc.user.emailConfig,
               uc.userId
             );
-            console.log(`✓ Sent reminder email to ${uc.user.email}`);
+
           } catch (emailError) {
             console.error(`Failed to send reminder email to ${uc.user.email}:`, emailError.message);
           }
@@ -151,8 +149,6 @@ export default async function handler(req, res) {
         console.log(`✓ Sent reminder to user ${uc.user.email} for challenge ${uc.challenge.name} (${pendingTasks.length} pending tasks)`);
       }
     }
-
-    console.log(`✅ Daily reminders complete: ${remindersSent} reminders sent`);
 
     return res.status(200).json({
       success: true,

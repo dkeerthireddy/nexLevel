@@ -93,7 +93,35 @@ export const UserChallenge = {
   },
   
   challenge: async (parent, _, { db }) => {
-    return await db.collection('challenges').findOne({ _id: parent.challengeId });
+    const challenge = await db.collection('challenges').findOne({ _id: parent.challengeId });
+    if (!challenge) {
+      // Return a placeholder challenge if the original was deleted
+      return {
+        _id: parent.challengeId,
+        name: '[Deleted Challenge]',
+        description: 'This challenge has been deleted',
+        category: 'general',
+        frequency: 'daily',
+        duration: 30,
+        requirePhotoProof: false,
+        allowGraceSkips: true,
+        graceSkipsPerWeek: 1,
+        createdBy: null,
+        isTemplate: false,
+        isPublic: false,
+        challengeType: 'solo',
+        tasks: [],
+        collaborators: [],
+        stats: {
+          totalUsers: 0,
+          activeUsers: 0,
+          completionRate: 0,
+          avgSuccessRate: 0
+        },
+        createdAt: new Date()
+      };
+    }
+    return challenge;
   },
   
   partners: async (parent, _, { db }) => {

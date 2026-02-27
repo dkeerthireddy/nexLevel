@@ -165,7 +165,7 @@ export const Mutation = {
       try {
         const { sendSignupVerificationEmail } = await import('../../lib/email.js');
         await sendSignupVerificationEmail(email, displayName, verificationCode);
-        console.log('✅ Verification code sent to:', email);
+
       } catch (error) {
         console.error('Failed to send verification email:', error.message);
         // Continue anyway - user can resend
@@ -263,8 +263,6 @@ export const Mutation = {
       // Generate JWT token
       const token = generateToken(user._id);
 
-      console.log('✅ User logged in:', email);
-
       // Transform _id to id for GraphQL compatibility
       return { 
         token, 
@@ -316,7 +314,6 @@ export const Mutation = {
       // Mark token as used
       await markTokenUsed(db, token);
 
-      console.log('✅ Password reset successful for user:', reset.userId);
       return true;
     } catch (error) {
       console.error('Password reset error:', error.message);
@@ -361,7 +358,6 @@ export const Mutation = {
         }
       );
 
-      console.log('✅ Email verified successfully:', userDoc.email);
       return true;
     } catch (error) {
       console.error('Email verification error:', error.message);
@@ -403,8 +399,7 @@ export const Mutation = {
       // Send verification code email using admin email settings
       const { sendSignupVerificationEmail } = await import('../../lib/email.js');
       await sendSignupVerificationEmail(userDoc.email, userDoc.displayName, verificationCode);
-      
-      console.log('✅ Verification code resent to:', userDoc.email);
+
       return true;
     } catch (error) {
       console.error('Resend verification error:', error.message);
@@ -452,8 +447,7 @@ export const Mutation = {
       // Send verification code email using admin email settings
       const { sendPasswordChangeEmail } = await import('../../lib/email.js');
       await sendPasswordChangeEmail(userDoc.email, userDoc.displayName, passwordChangeCode);
-      
-      console.log('✅ Password change code sent to:', userDoc.email);
+
       return true;
     } catch (error) {
       console.error('Request password change error:', error.message);
@@ -512,7 +506,6 @@ export const Mutation = {
         }
       );
 
-      console.log('✅ Password changed successfully for user:', userDoc.email);
       return true;
     } catch (error) {
       console.error('Change password error:', error.message);
@@ -576,7 +569,6 @@ export const Mutation = {
         { $unset: { twoFactorSecretPending: '', twoFactorBackupCodesPending: '' } }
       );
 
-      console.log('✅ Two-factor authentication enabled for user:', user._id);
       return true;
     } catch (error) {
       console.error('Verify 2FA error:', error.message);
@@ -606,7 +598,6 @@ export const Mutation = {
 
       await disableTwoFactorForUser(db, user._id);
 
-      console.log('✅ Two-factor authentication disabled for user:', user._id);
       return true;
     } catch (error) {
       console.error('Disable 2FA error:', error.message);
@@ -722,8 +713,6 @@ export const Mutation = {
       { $set: updates }
     );
 
-    console.log('✅ Email configuration updated for user:', user.email);
-
     return await db.collection('users').findOne({ _id: user._id });
   },
 
@@ -825,8 +814,6 @@ export const Mutation = {
     const challengeId = new ObjectId(id);
     await db.collection('userChallenges').deleteMany({ challengeId });
     await db.collection('checkIns').deleteMany({ challengeId });
-    
-    console.log(`✅ Challenge deleted by ${isAdmin ? 'admin' : 'creator'}:`, id);
 
     return true;
   },
@@ -905,8 +892,6 @@ export const Mutation = {
       }
     );
 
-    console.log('✅ User joined challenge:', challenge.name);
-
     return { ...userChallenge, _id: result.insertedId };
   },
 
@@ -944,8 +929,6 @@ export const Mutation = {
       { _id: userChallenge.challengeId },
       { $inc: { 'stats.activeUsers': -1 } }
     );
-
-    console.log('✅ User left challenge:', userChallengeId);
 
     return true;
   },
@@ -997,8 +980,6 @@ export const Mutation = {
     const lastCheckIn = checkIns.length > 0 
       ? checkIns.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0]
       : null;
-
-    console.log('✅ Task progress updated:', task.title);
 
     return {
       taskId: taskId,
@@ -1073,7 +1054,7 @@ export const Mutation = {
 
     // Photo upload is currently disabled
     if (photoBase64) {
-      console.log('⚠️  Photo upload is currently disabled. Check-in will be saved without photo.');
+
       // Optionally, you can uncomment the following to enable photo uploads:
       /*
       try {
@@ -1179,8 +1160,6 @@ export const Mutation = {
       }
     }
 
-    console.log('✅ Task check-in created for user:', user.email, 'Task:', task.title);
-
     return { ...checkIn, _id: result.insertedId };
   },
 
@@ -1281,8 +1260,6 @@ export const Mutation = {
 
     const result = await db.collection('aiMessages').insertOne(message);
 
-    console.log('✅ AI coach message generated');
-
     return { ...message, _id: result.insertedId };
   },
 
@@ -1350,8 +1327,6 @@ export const Mutation = {
 
     const result = await db.collection('aiMessages').insertOne(message);
 
-    console.log('✅ Weekly report generated');
-
     return { ...message, _id: result.insertedId };
   },
 
@@ -1415,8 +1390,6 @@ export const Mutation = {
       { $addToSet: { 'friendRequests.received': user._id } }
     );
 
-    console.log('✅ Friend request sent');
-
     return true;
   },
 
@@ -1444,8 +1417,6 @@ export const Mutation = {
       }
     );
 
-    console.log('✅ Friend request accepted');
-
     return true;
   },
 
@@ -1466,8 +1437,6 @@ export const Mutation = {
       { _id: friendId },
       { $pull: { friendIds: user._id } }
     );
-
-    console.log('✅ Friend removed');
 
     return true;
   },
@@ -1510,8 +1479,6 @@ export const Mutation = {
       }
     }
 
-    console.log('✅ Friend invited to challenge:', friend.displayName);
-
     return true;
   },
 
@@ -1549,7 +1516,6 @@ export const Mutation = {
         message || ''
       );
 
-      console.log(`✅ User challenge invitation sent to ${email} for instance ${userChallengeId}`);
       return true;
     } catch (error) {
       console.error('Error sending user challenge invitation email:', error);
@@ -1594,8 +1560,6 @@ export const Mutation = {
         status: 'sent',
         sentAt: new Date()
       });
-
-      console.log('✅ Email invitation sent to:', email);
 
       return true;
     } catch (error) {
@@ -1647,8 +1611,6 @@ export const Mutation = {
       }
     }
 
-    console.log('✅ Progress shared with friend:', friend.displayName);
-
     return true;
   },
 
@@ -1681,8 +1643,6 @@ export const Mutation = {
     );
 
     const updatedChallenge = await db.collection('challenges').findOne({ _id: new ObjectId(challengeId) });
-
-    console.log('✅ Challenge renamed to:', newName);
 
     return updatedChallenge;
   },
@@ -1763,8 +1723,6 @@ export const Mutation = {
         }
       }
     }
-
-    console.log('✅ User exited challenge:', challenge.name);
 
     return true;
   },
@@ -1854,8 +1812,6 @@ export const Mutation = {
 
     const result = await db.collection('certificates').insertOne(certificate);
 
-    console.log('✅ Certificate generated:', type, 'for', user.displayName);
-
     return { ...certificate, _id: result.insertedId };
   },
 
@@ -1887,8 +1843,6 @@ export const Mutation = {
       read: false,
       createdAt: new Date()
     });
-
-    console.log('✅ Message sent from', user.displayName, 'to', toUserId);
 
     return { ...chatMessage, _id: result.insertedId };
   },
@@ -1927,8 +1881,6 @@ export const Mutation = {
       { upsert: true }
     );
 
-    console.log('✅ Push notification subscription saved for', user.displayName);
-
     return true;
   },
 
@@ -1955,8 +1907,6 @@ export const Mutation = {
     };
 
     const result = await db.collection('featureRequests').insertOne(featureRequest);
-
-    console.log('✅ Feature request submitted:', title);
 
     // Return with proper ID mapping for GraphQL
     return { 
@@ -2025,8 +1975,6 @@ export const Mutation = {
       }
     );
 
-    console.log('✅ Feature request status updated:', requestId, status);
-
     return await db.collection('featureRequests').findOne({ _id: new ObjectId(requestId) });
   },
 
@@ -2050,8 +1998,8 @@ export const Mutation = {
 
       // Send email notification to admin users from database
       try {
-        console.log('📧 [FEEDBACK] Starting email notification process...');
-        console.log('📧 [FEEDBACK] Environment check - ADMIN_EMAIL:', process.env.ADMIN_EMAIL ? 'SET' : 'NOT SET');
+
+
         console.log('📧 [FEEDBACK] Environment check - ADMIN_EMAIL_PASSWORD:', process.env.ADMIN_EMAIL_PASSWORD ? 'SET (length: ' + process.env.ADMIN_EMAIL_PASSWORD.length + ')' : 'NOT SET');
         
         await sendFeedbackNotificationToAdmins({
@@ -2061,15 +2009,12 @@ export const Mutation = {
           message,
           createdAt: feedback.createdAt
         }, db); // Pass database to get admin users
-        
-        console.log('✅ [FEEDBACK] Email notification sent successfully to all admins!');
+
       } catch (emailError) {
         console.error('❌ [FEEDBACK] Failed to send email notification:', emailError.message);
         console.error('❌ [FEEDBACK] Error stack:', emailError.stack);
         // Don't fail the mutation if email fails - feedback is still saved
       }
-
-      console.log('✅ Feedback received from:', email, '- Subject:', subject);
 
       return {
         success: true,
@@ -2171,8 +2116,6 @@ export const Mutation = {
       { upsert: true }
     );
 
-    console.log('✅ System settings updated: AI Coach', aiCoachEnabled ? 'enabled' : 'disabled');
-
     return {
       aiCoachEnabled,
       updatedAt: updatedAt.toISOString(),
@@ -2263,8 +2206,6 @@ export const Mutation = {
       { _id: originalInstance.userId },
       { $addToSet: { friends: user._id } }
     );
-
-    console.log(`✅ User ${user._id} joined challenge instance and became friends with ${originalInstance.userId}`);
 
     // Return the new user challenge
     return {

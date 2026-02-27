@@ -20,15 +20,7 @@ const JoinChallengeModal = ({ challenge, onClose }) => {
   const streakPartners = challengesData?.myActiveChallenges?.flatMap(uc => uc.partners || []) || [];
   
   // Debug logging
-  console.log('🔍 JoinChallengeModal - Friends Debug:', {
-    baseFriends: baseFriends.length,
-    streakPartners: streakPartners.length,
-    friendsData,
-    challengesData,
-    friendsLoading,
-    challengesLoading
-  });
-  
+
   // Merge and deduplicate by ID
   const uniqueFriendsMap = new Map();
   [...baseFriends, ...streakPartners].forEach(friend => {
@@ -37,9 +29,7 @@ const JoinChallengeModal = ({ challenge, onClose }) => {
     }
   });
   const friends = Array.from(uniqueFriendsMap.values());
-  
-  console.log('✅ Final friends list:', friends);
-  
+
   const [searchUsers, { data: searchData, loading: searchLoading }] = useLazyQuery(SEARCH_USERS);
   const searchResults = searchData?.searchUsers || [];
   

@@ -181,8 +181,7 @@ async function seedChallenges() {
   
   try {
     await client.connect();
-    console.log('✅ Connected to MongoDB');
-    
+
     const db = client.db();
     const challengesCollection = db.collection('challenges');
     
@@ -190,16 +189,15 @@ async function seedChallenges() {
     const existingCount = await challengesCollection.countDocuments({ isTemplate: true });
     
     if (existingCount > 0) {
-      console.log(`⚠️  ${existingCount} template challenges already exist`);
-      console.log('Skipping seed. Delete existing templates first if you want to re-seed.');
+
+
       return;
     }
     
     // Insert popular challenges
     const result = await challengesCollection.insertMany(popularChallenges);
-    
-    console.log(`✅ Successfully seeded ${result.insertedCount} popular challenges!`);
-    console.log('\nChallenges added:');
+
+
     popularChallenges.forEach((challenge, index) => {
       console.log(`  ${index + 1}. ${challenge.name} (${challenge.duration} days, ${challenge.tasks.length} tasks)`);
     });
@@ -209,14 +207,14 @@ async function seedChallenges() {
     throw error;
   } finally {
     await client.close();
-    console.log('\n✅ Database connection closed');
+
   }
 }
 
 // Run the seed function
 seedChallenges()
   .then(() => {
-    console.log('\n🎉 Seed completed successfully!');
+
     process.exit(0);
   })
   .catch((error) => {

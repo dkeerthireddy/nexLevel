@@ -78,7 +78,7 @@ async function startServer() {
   try {
     const connection = await connectToDatabase();
     db = connection.db;
-    console.log('📊 Initializing database indexes...');
+
     await initializeIndexes(db);
     
     // Initialize OAuth strategies with database (optional)
@@ -90,7 +90,7 @@ async function startServer() {
     
     // On Vercel, throw error to let the function fail gracefully
     if (process.env.VERCEL) {
-      console.log('⚠️ Running on Vercel - throwing error to fail gracefully');
+
       throw new Error(`Database connection failed: ${error.message}`);
     } else {
       process.exit(1);
@@ -115,7 +115,6 @@ async function startServer() {
 
   // Start Apollo Server
   await server.start();
-  console.log('🚀 Apollo Server started');
 
   // Initialize passport
   app.use(passport.initialize());
@@ -167,14 +166,13 @@ async function startServer() {
 
   // Start HTTP server
   await new Promise((resolve) => httpServer.listen({ port: PORT }, resolve));
-  
-  console.log('');
-  console.log('🎉 =============================================');
-  console.log(`🚀 GraphQL API running at http://localhost:${PORT}/graphql`);
-  console.log(`🏥 Health check at http://localhost:${PORT}/health`);
-  console.log(`🎮 GraphQL Playground at http://localhost:${PORT}/graphql`);
-  console.log('🎉 =============================================');
-  console.log('');
+
+
+
+
+
+
+
 }
 
 // Handle errors

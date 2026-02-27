@@ -24,7 +24,7 @@ export async function sendDailyMotivation(db, userId) {
     const quietEnd = parseInt(user.settings.notifications.quietHours.end.split(':')[0]);
     
     if (currentHour >= quietStart || currentHour < quietEnd) {
-      console.log(`Skipping notification for ${user.email} - quiet hours`);
+
       return null;
     }
 
@@ -60,8 +60,7 @@ export async function sendDailyMotivation(db, userId) {
     };
 
     const result = await db.collection('notifications').insertOne(notification);
-    console.log(`✅ Daily motivation sent to ${user.email}`);
-    
+
     // Send email notification if enabled
     if (user.settings?.notifications?.enabled && user.settings?.notifications?.types?.dailyReminder) {
       try {
@@ -103,8 +102,7 @@ export async function sendFriendProgressNotification(db, userId, friendId, chall
     };
 
     const result = await db.collection('notifications').insertOne(notification);
-    console.log(`✅ Friend progress notification sent to ${user.email}`);
-    
+
     // Send email notification if enabled
     if (user.settings?.notifications?.enabled && user.settings?.notifications?.types?.partnerComplete) {
       try {
@@ -208,8 +206,7 @@ export async function sendFriendSuggestionNotification(db, userId) {
     };
 
     const result = await db.collection('notifications').insertOne(notification);
-    console.log(`✅ Friend suggestion sent to ${user.email}`);
-    
+
     // Send email notification if enabled
     if (user.settings?.notifications?.enabled) {
       try {
@@ -286,8 +283,7 @@ export async function sendChallengeSuggestionNotification(db, userId) {
     };
 
     const result = await db.collection('notifications').insertOne(notification);
-    console.log(`✅ Challenge suggestion sent to ${user.email}`);
-    
+
     // Send email notification if enabled
     if (user.settings?.notifications?.enabled && user.settings?.ai?.recommendations) {
       try {
@@ -336,8 +332,7 @@ export async function sendStreakMilestoneNotification(db, userId, userChallengeI
     };
 
     const result = await db.collection('notifications').insertOne(notification);
-    console.log(`✅ Streak milestone notification sent to ${user.email}`);
-    
+
     // Send email notification if enabled
     if (user.settings?.notifications?.enabled && user.settings?.notifications?.types?.streakMilestone) {
       try {
@@ -363,15 +358,12 @@ export async function sendDailyMotivationsToAll(db) {
       .find({ 'settings.notifications.enabled': true })
       .toArray();
 
-    console.log(`📧 Sending daily motivations to ${users.length} users...`);
-
     let successCount = 0;
     for (const user of users) {
       const result = await sendDailyMotivation(db, user._id);
       if (result) successCount++;
     }
 
-    console.log(`✅ Sent ${successCount} daily motivations`);
     return successCount;
   } catch (error) {
     console.error('Error batch sending daily motivations:', error);

@@ -20,7 +20,7 @@ const AdminDashboard = () => {
       console.error('Network error:', err.networkError);
     },
     onCompleted: (data) => {
-      console.log('✅ GET_ALL_FEEDBACK completed:', data?.allFeedback?.length, 'items');
+
     }
   });
 
@@ -33,7 +33,7 @@ const AdminDashboard = () => {
       console.error('Network error:', err.networkError);
     },
     onCompleted: (data) => {
-      console.log('✅ GET_SYSTEM_STATS completed:', data?.systemStats);
+
     }
   });
 
@@ -43,7 +43,7 @@ const AdminDashboard = () => {
       console.error('❌ GET_SYSTEM_SETTINGS Error:', err);
     },
     onCompleted: (data) => {
-      console.log('✅ GET_SYSTEM_SETTINGS completed:', data?.systemSettings);
+
     }
   });
 
@@ -53,7 +53,7 @@ const AdminDashboard = () => {
       console.error('❌ GET_ALL_CHALLENGES Error:', err);
     },
     onCompleted: (data) => {
-      console.log('✅ GET_ALL_CHALLENGES completed:', data?.challenges?.length, 'challenges');
+
     }
   });
 
@@ -177,16 +177,6 @@ const AdminDashboard = () => {
   };
 
   // Debug logging - log early to see what's happening
-  console.log('📊 Admin Dashboard Render:', {
-    loading,
-    statsLoading,
-    error: error?.message,
-    statsError: statsError?.message,
-    hasData: !!data,
-    hasStatsData: !!statsData,
-    rawData: data,
-    rawStatsData: statsData
-  });
 
   const feedback = data?.allFeedback || [];
   const stats = statsData?.systemStats;
@@ -199,7 +189,7 @@ const AdminDashboard = () => {
 
   // Show loading state
   if (loading || statsLoading || settingsLoading || challengesLoading) {
-    console.log('⏳ Loading admin dashboard data...');
+
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-screen">
@@ -211,7 +201,7 @@ const AdminDashboard = () => {
 
   // Only show full error page if both queries fail
   if (error && statsError) {
-    console.log('❌ Both queries failed, showing error page');
+
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-screen">
@@ -240,8 +230,6 @@ const AdminDashboard = () => {
       </Layout>
     );
   }
-
-  console.log('🎨 Rendering Admin Dashboard UI...');
 
   return (
     <Layout>

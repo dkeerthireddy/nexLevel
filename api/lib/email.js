@@ -8,7 +8,7 @@ import { decryptSensitiveData } from './auth.js';
 // Create transporter with user's credentials
 function createUserTransporter(gmailUser, encryptedGmailAppPassword, userId) {
   if (!gmailUser || !encryptedGmailAppPassword || !userId) {
-    console.log('⚠️ Email credentials not provided');
+
     return null;
   }
   
@@ -17,7 +17,7 @@ function createUserTransporter(gmailUser, encryptedGmailAppPassword, userId) {
     const gmailAppPassword = decryptSensitiveData(encryptedGmailAppPassword, userId);
     
     if (!gmailAppPassword) {
-      console.log('⚠️ Failed to decrypt email password');
+
       return null;
     }
     
@@ -40,7 +40,7 @@ function createUserTransporter(gmailUser, encryptedGmailAppPassword, userId) {
 export async function sendChallengeInvitationEmail(recipientEmail, inviterName, challengeName, challengeDescription, inviteMessage = '', senderEmailConfig = null, senderId = null) {
   try {
     if (!senderEmailConfig || !senderEmailConfig.enabled) {
-      console.log('⚠️ Email not sent - sender has not enabled email notifications');
+
       return { success: false, error: 'Email not configured' };
     }
 
@@ -104,7 +104,7 @@ export async function sendChallengeInvitationEmail(recipientEmail, inviterName, 
     };
     
     const info = await transport.sendMail(mailOptions);
-    console.log('✅ Challenge invitation email sent:', info.messageId);
+
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error('❌ Error sending challenge invitation email:', error);
@@ -128,7 +128,7 @@ async function sendEmailViaAdmin(recipientEmail, subject, htmlContent) {
   const adminEmailPassword = process.env.ADMIN_EMAIL_PASSWORD;
 
   if (!adminEmail || !adminEmailPassword) {
-    console.log('⚠️ Admin email not configured - skipping email');
+
     throw new Error('Admin email not configured');
   }
 
@@ -149,7 +149,7 @@ async function sendEmailViaAdmin(recipientEmail, subject, htmlContent) {
   };
 
   await transport.sendMail(mailOptions);
-  console.log('✅ Email sent via admin to:', recipientEmail);
+
 }
 
 export async function sendUserChallengeInvitationEmailAdmin(recipientEmail, inviterName, challengeName, challengeDescription, userChallengeId, inviteMessage = '') {
@@ -214,7 +214,7 @@ export async function sendUserChallengeInvitationEmailAdmin(recipientEmail, invi
 
   try {
     await sendEmailViaAdmin(recipientEmail, subject, html);
-    console.log(`✅ User challenge invitation email sent to ${recipientEmail}`);
+
   } catch (error) {
     console.error('❌ Error sending user challenge invitation email:', error);
     throw error;
@@ -228,7 +228,7 @@ export async function sendChallengeInvitationEmailAdmin(recipientEmail, inviterN
     const adminEmailPassword = process.env.ADMIN_EMAIL_PASSWORD;
 
     if (!adminEmail || !adminEmailPassword) {
-      console.log('⚠️ Admin email not configured - skipping challenge invitation email');
+
       throw new Error('Admin email not configured');
     }
 
@@ -298,7 +298,7 @@ export async function sendChallengeInvitationEmailAdmin(recipientEmail, inviterN
     };
 
     await transport.sendMail(mailOptions);
-    console.log('✅ Challenge invitation email sent to:', recipientEmail);
+
     return { success: true };
   } catch (error) {
     console.error('❌ Error sending challenge invitation email:', error);
@@ -316,7 +316,7 @@ export async function sendNotificationEmail(recipientEmail, recipientName, notif
     const adminEmailPassword = process.env.ADMIN_EMAIL_PASSWORD;
 
     if (!adminEmail || !adminEmailPassword) {
-      console.log('⚠️ Admin email not configured - skipping notification email');
+
       return { success: false, error: 'Admin email not configured' };
     }
 
@@ -521,7 +521,7 @@ export async function sendNotificationEmail(recipientEmail, recipientName, notif
     };
     
     const info = await transport.sendMail(mailOptions);
-    console.log('✅ Notification email sent to:', recipientEmail);
+
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error('❌ Error sending notification email:', error);
@@ -539,7 +539,7 @@ export async function sendChallengeExitEmail(recipientEmail, recipientName, chal
     const adminEmailPassword = process.env.ADMIN_EMAIL_PASSWORD;
 
     if (!adminEmail || !adminEmailPassword) {
-      console.log('⚠️ Admin email not configured - skipping challenge exit email');
+
       return { success: false, error: 'Admin email not configured' };
     }
 
@@ -598,7 +598,7 @@ export async function sendChallengeExitEmail(recipientEmail, recipientName, chal
     };
     
     const info = await transport.sendMail(mailOptions);
-    console.log('✅ Challenge exit email sent to:', recipientEmail);
+
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error('❌ Error sending challenge exit email:', error);
@@ -617,7 +617,7 @@ export async function sendPasswordResetEmail(recipientEmail, recipientName, rese
     const adminEmailPassword = process.env.ADMIN_EMAIL_PASSWORD;
 
     if (!adminEmail || !adminEmailPassword) {
-      console.log('⚠️ Admin email not configured - skipping password reset email');
+
       return { success: false, error: 'Admin email not configured' };
     }
 
@@ -660,7 +660,7 @@ export async function sendPasswordResetEmail(recipientEmail, recipientName, rese
     };
 
     await transport.sendMail(mailOptions);
-    console.log('✅ Password reset email sent to:', recipientEmail);
+
     return { success: true };
   } catch (error) {
     console.error('❌ Error sending password reset email:', error);
@@ -674,7 +674,7 @@ export async function sendPasswordResetEmail(recipientEmail, recipientName, rese
 export async function sendEmailVerificationEmail(recipientEmail, recipientName, verificationToken, recipientEmailConfig = null, recipientId = null) {
   try {
     if (!recipientEmailConfig || !recipientEmailConfig.enabled) {
-      console.log('⚠️ Email not sent - recipient has not enabled email notifications');
+
       return { success: false, error: 'Email not configured' };
     }
 
@@ -712,7 +712,7 @@ export async function sendEmailVerificationEmail(recipientEmail, recipientName, 
     };
 
     await transport.sendMail(mailOptions);
-    console.log('✅ Email verification sent to:', recipientEmail);
+
     return { success: true };
   } catch (error) {
     console.error('❌ Error sending email verification:', error);
@@ -731,7 +731,7 @@ export async function sendSignupVerificationEmail(recipientEmail, recipientName,
     const adminEmailPassword = process.env.ADMIN_EMAIL_PASSWORD;
 
     if (!adminEmail || !adminEmailPassword) {
-      console.log('⚠️ Admin email not configured - skipping verification email');
+
       return { success: false, error: 'Admin email not configured' };
     }
 
@@ -772,7 +772,7 @@ export async function sendSignupVerificationEmail(recipientEmail, recipientName,
     };
 
     await transport.sendMail(mailOptions);
-    console.log('✅ Signup verification code sent to:', recipientEmail);
+
     return { success: true };
   } catch (error) {
     console.error('❌ Error sending signup verification email:', error);
@@ -791,7 +791,7 @@ export async function sendPasswordChangeEmail(recipientEmail, recipientName, ver
     const adminEmailPassword = process.env.ADMIN_EMAIL_PASSWORD;
 
     if (!adminEmail || !adminEmailPassword) {
-      console.log('⚠️ Admin email not configured - skipping password change email');
+
       return { success: false, error: 'Admin email not configured' };
     }
 
@@ -832,7 +832,7 @@ export async function sendPasswordChangeEmail(recipientEmail, recipientName, ver
     };
 
     await transport.sendMail(mailOptions);
-    console.log('✅ Password change verification code sent to:', recipientEmail);
+
     return { success: true };
   } catch (error) {
     console.error('❌ Error sending password change email:', error);
@@ -845,15 +845,12 @@ export async function sendPasswordChangeEmail(recipientEmail, recipientName, ver
  */
 export async function sendFeedbackNotificationToAdmins(feedbackData, db) {
   try {
-    console.log('📧 Starting feedback notification process...');
-    
+
     // System email for sending (from .env - logistics email)
     const systemEmail = process.env.ADMIN_EMAIL;
     const systemPassword = process.env.ADMIN_EMAIL_PASSWORD;
 
-    console.log('📧 System email exists:', !!systemEmail);
     console.log('📧 System email value:', systemEmail ? `${systemEmail.substring(0, 3)}***` : 'NOT SET');
-    console.log('📧 System password exists:', !!systemPassword);
 
     if (!systemEmail || !systemPassword) {
       console.error('❌ System email not configured');
@@ -871,7 +868,6 @@ export async function sendFeedbackNotificationToAdmins(feedbackData, db) {
     const adminEmails = adminUsers.map(admin => admin.email).filter(email => email);
     console.log(`📧 Found ${adminEmails.length} admin(s):`, adminEmails.map(e => `${e.substring(0, 3)}***`).join(', '));
 
-    console.log('📧 Creating email transporter...');
     const transport = nodemailer.createTransporter({
       service: 'gmail',
       auth: {
@@ -881,16 +877,15 @@ export async function sendFeedbackNotificationToAdmins(feedbackData, db) {
     });
 
     // Verify transporter configuration
-    console.log('📧 Verifying email transporter...');
+
     try {
       await transport.verify();
-      console.log('✅ Email transporter verified successfully');
+
     } catch (verifyError) {
       console.error('❌ Email transporter verification failed:', verifyError.message);
       throw new Error(`Email configuration invalid: ${verifyError.message}`);
     }
 
-    console.log('📧 Preparing email content...');
     const mailOptions = {
       from: `"${process.env.APP_NAME || 'nexLevel'}" <${systemEmail}>`,
       to: systemEmail, // Send to system admin email
@@ -942,12 +937,10 @@ export async function sendFeedbackNotificationToAdmins(feedbackData, db) {
       `
     };
 
-    console.log('📧 Sending email from:', mailOptions.from);
-    console.log('📧 Sending email to:', mailOptions.to);
-    console.log('📧 Email subject:', mailOptions.subject);
+
 
     await transport.sendMail(mailOptions);
-    console.log('✅ Feedback notification sent to:', systemEmail);
+
   } catch (error) {
     console.error('❌ Error sending feedback notification:', error);
     throw new Error('Failed to send feedback notification email');

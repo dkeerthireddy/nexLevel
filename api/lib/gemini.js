@@ -13,7 +13,7 @@ const model = genAI ? genAI.getGenerativeModel({ model: 'gemini-2.0-flash' }) : 
 
 // Log only if AI is enabled (not if disabled)
 if (GEMINI_API_KEY) {
-  console.log('✅ Gemini AI enabled');
+
 }
 
 // Simple in-memory cache for AI responses (24 hours)
@@ -30,7 +30,7 @@ setInterval(() => {
     }
   }
   if (cleaned > 0) {
-    console.log(`🧹 Cleaned ${cleaned} expired cache entries`);
+
   }
 }, 60 * 60 * 1000);
 
@@ -119,7 +119,7 @@ export async function generateText(prompt, useCache = true) {
   if (useCache) {
     const cached = cache.get(prompt);
     if (cached && cached.expiresAt > Date.now()) {
-      console.log('✓ Cache hit for Gemini request');
+
       return cached.response;
     }
   }
@@ -127,7 +127,7 @@ export async function generateText(prompt, useCache = true) {
   // Check if we're close to rate limits and wait if needed
   const limitCheck = rateLimiter.canMakeRequest();
   if (!limitCheck.allowed && limitCheck.reason === 'per-minute') {
-    console.log('⚠️ Approaching rate limit, waiting 5 seconds...');
+
     await rateLimiter.waitForRateLimit();
   }
 
@@ -137,12 +137,7 @@ export async function generateText(prompt, useCache = true) {
     
     // Log usage stats
     const stats = rateLimiter.getStats();
-    console.log('📊 Gemini API usage:', {
-      perMinute: `${stats.perMinute}/${stats.perMinuteLimit}`,
-      perDay: `${stats.perDay}/${stats.perDayLimit}`,
-      remaining: `${stats.perMinuteRemaining}/min, ${stats.perDayRemaining}/day`
-    });
-    
+
     // Generate new response with retry logic
     let retries = 0;
     const maxRetries = 3;
@@ -174,7 +169,7 @@ export async function generateText(prompt, useCache = true) {
           if (retries < maxRetries) {
             // Exponential backoff: 2^retry * 2 seconds
             const waitTime = Math.pow(2, retries) * 2000;
-            console.log(`⏳ Rate limit hit. Retry ${retries}/${maxRetries} in ${waitTime/1000}s...`);
+
             await new Promise(resolve => setTimeout(resolve, waitTime));
             continue;
           }
@@ -193,7 +188,7 @@ export async function generateText(prompt, useCache = true) {
     // Check if it's a quota error from Google
     if (error.message.includes('quota') || error.message.includes('RESOURCE_EXHAUSTED') || error.message.includes('429')) {
       const stats = rateLimiter.getStats();
-      console.log('📊 Local usage stats when error occurred:', stats);
+
       throw new Error('Google API rate limit reached. Free tier: 15 requests/min, 1500/day. Please wait a moment and try again.');
     }
     
@@ -299,7 +294,7 @@ export async function generateMotivationalMessage(userData) {
   // Check if we have a cached response for similar stats
   const cached = cache.get(cacheKey);
   if (cached && cached.expiresAt > Date.now()) {
-    console.log('✓ Cache hit for motivational message');
+
     return cached.response;
   }
   
@@ -334,7 +329,7 @@ export async function generateMotivationalMessage(userData) {
     return response;
   } catch (error) {
     // If AI fails (rate limit, etc), return fallback
-    console.log('⚠️ AI motivation failed, using fallback:', error.message);
+
     return fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)];
   }
 }
@@ -448,7 +443,7 @@ export async function generateChallengeRecommendations(userHistory) {
  */
 export function clearCache() {
   cache.clear();
-  console.log('Gemini AI cache cleared');
+
 }
 
 // Export rate limiter stats
@@ -459,7 +454,7 @@ export function getRateLimitStats() {
 // Reset rate limiter (useful for testing or if stuck)
 export function resetRateLimiter() {
   rateLimiter.requests = [];
-  console.log('✅ Rate limiter reset - all request tracking cleared');
+
   return { success: true, message: 'Rate limiter reset successfully' };
 }
 

@@ -15,7 +15,6 @@ const Browse = () => {
   const [selectedChallenge, setSelectedChallenge] = useState(null);
 
   // Debug logging
-  console.log('Browse page - loading:', loading, 'error:', error, 'data:', data);
 
   const popularChallenges = data?.popularChallenges || [];
 
